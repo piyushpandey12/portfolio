@@ -1,0 +1,21 @@
+{
+  "name": "Portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "author": "piyushpandey12 <piyushpandey.ssm95@gmail.com>",
+  "contributors": [
+    {
+      "name": "piyushpandey12",
+      "email": "piyushpandey.ssm95@gmail.com",
+      "url": "https://github.com/piyushpandey12"
+    }
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^8.3.4"
+  }
+}

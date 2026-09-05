@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en" class="is-booting">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PIYUSH PANDEY — Software Engineer · AI/ML Developer · Problem Solver</title>
+<meta name="description" content="Portfolio of Piyush Pandey — Computer Science Engineering student, Software Engineer and AI/ML Developer. 5-Star HackerRank in C++, 250+ DSA problems solved.">
+<meta name="theme-color" content="#000000">
+
+<link rel="preload" href="public/fonts/anton-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="public/fonts/oswald-500.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="public/fonts/oswald-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="src/styles/app.css">
+<link rel="stylesheet" href="src/styles/universe.css">
+<link rel="stylesheet" href="src/styles/chrono.css">
+<link rel="stylesheet" href="src/styles/projects.css">
+<link rel="stylesheet" href="src/styles/finale.css">
+<link rel="stylesheet" href="src/styles/resume-sections.css">
+</head>
+<body>
+
+<!-- Accessible heading for search engines and assistive technology -->
+<h1 class="sr-only">PIYUSH PANDEY — Software Engineer, AI/ML Developer, Problem Solver. Welcome to my world.</h1>
+
+<!-- ------------------------------------------------------------------ -->
+<!-- Persistent Fixed Header Across Entire Experience -->
+<header class="hdr" id="hdr">
+  <svg class="hdr__rule" id="hdrRule" aria-hidden="true" preserveAspectRatio="none">
+    <polyline id="hdrRulePath" fill="none" stroke="currentColor" stroke-width="1.25"
+              vector-effect="non-scaling-stroke"/>
+  </svg>
+
+  <a class="hdr__mark" href="#home" aria-label="Piyush Pandey, home" data-nav>
+    <span class="mark-word">PIYUSH</span>
+  </a>
+
+  <span class="hdr__div" aria-hidden="true"></span>
+
+  <p class="hdr__roles">
+    <span>Software Engineer</span><span>AI/ML</span><span>Problem Solver</span>
+  </p>
+
+  <nav class="hdr__nav" aria-label="Primary">
+    <ul>
+      <li><a href="#home" class="is-active" data-nav>Home</a></li>
+      <li><a href="#universe" data-nav>Stack</a></li>
+      <li><a href="#chrono" data-nav>Journey</a></li>
+      <li><a href="#gallery" data-nav>Projects</a></li>
+      <li><a href="#about" data-nav>Experience</a></li>
+      <li><a href="#contact" data-nav>Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="hdr__meta">
+    <span class="hdr__metaLabel">Portfolio — MMXXVI</span>
+    <span class="hdr__pips" aria-hidden="true"><i></i><i></i><i></i></span>
+  </div>
+
+  <button class="hdr__burger" id="burger" aria-expanded="false" aria-controls="menu">
+    <span aria-hidden="true"></span><span aria-hidden="true"></span>
+    <span class="sr-only">Menu</span>
+  </button>
+</header>
+
+<!-- ------------------------------------------------------------------ -->
+<nav class="menu" id="menu" aria-label="Primary, expanded" hidden>
+  <ul>
+    <li><a href="#home" class="is-active" data-nav>Home</a></li>
+    <li><a href="#universe" data-nav>Stack</a></li>
+    <li><a href="#chrono" data-nav>Journey</a></li>
+    <li><a href="#gallery" data-nav>Projects</a></li>
+    <li><a href="#about" data-nav>Experience</a></li>
+    <li><a href="#contact" data-nav>Contact</a></li>
+  </ul>
+  <p class="menu__tag">••• Welcome to my world •••</p>
+</nav>
+
+<div class="stage-wrap">
+  <canvas id="stage" aria-hidden="true"></canvas>
+
+  <!-- ------------------------------------------------------------------ -->
+  <div class="furniture" aria-hidden="true">
+    <p class="welcome" id="welcome">
+      <b class="welcome__dots">•••</b>
+      <span class="welcome__text">Welcome to my world</span>
+      <b class="welcome__dots">•••</b>
+    </p>
+
+    <p class="chip chip--artist" id="chipArtist"><span>•Piyush Pandey•</span></p>
+    <p class="chip chip--legend" id="chipLegend"><span>•5★ HackerRank C++•</span></p>
+
+    <div class="arrows arrows--l" id="arrowsL"></div>
+    <div class="arrows arrows--r" id="arrowsR"></div>
+    <div class="grid-dots grid-dots--br" id="dotsBR"></div>
+  </div>
+
+  <!-- ------------------------------------------------------------------ -->
+  <div class="boot" id="boot">
+    <div class="boot__bar"><i id="bootFill"></i></div>
+    <button class="boot__enter" id="bootEnter" hidden>
+      <span>Enter</span>
+    </button>
+  </div>
+
+  <noscript>
+    <div class="fallback">
+      <p>PIYUSH</p>
+      <small>Software Engineer · AI/ML Developer · Problem Solver</small>
+    </div>
+  </noscript>
+</div>
+
+<div id="home"></div>
+
+<main class="flow">
+  <!-- the hero above is position:fixed, so this reserves its scroll height -->
+  <div class="hero-spacer" aria-hidden="true"></div>
+
+  <!-- ==================================================================== -->
+  <!-- Scene 02: The Tech & AI Universe -->
+  <section class="universe" id="universe" aria-labelledby="uniTitle">
+    <header class="universe__title" id="uniTitle">
+      <p class="universe__over">Scene 02</p>
+      <h2 class="universe__name">The Tech & AI<br>Universe</h2>
+      <p class="universe__sub">Languages · AI Tools · Systems · Impact</p>
+    </header>
+    <ul class="sr-only">
+      <li>C++</li><li>Python</li><li>JavaScript</li><li>SQL</li>
+      <li>MySQL</li><li>PostgreSQL</li><li>ChatGPT</li><li>Claude</li>
+      <li>Gemini</li><li>n8n</li><li>Codex</li><li>Hadoop</li>
+    </ul>
+    <video id="uniFilm" muted playsinline loop preload="metadata"
+           poster="public/media/universe.jpg" aria-hidden="true">
+      <source src="public/media/universe.mp4" type="video/mp4">
+    </video>
+    <div class="universe__veil" id="uniVeil" aria-hidden="true"></div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- Scene 03: A Journey Through Time -->
+  <section class="chrono" id="chrono" aria-labelledby="chronoTitle">
+    <div class="chrono__pin">
+      <canvas id="chronoStage" aria-hidden="true"></canvas>
+
+      <h2 class="chrono__title" id="chronoTitle">
+        <span>A</span><span>Journey</span><span>Through</span><span>Time</span>
+      </h2>
+      <p class="chrono__rail" aria-hidden="true">
+        <i></i>
+        <span>Logic</span><span>Algorithms</span><span>Systems</span>
+        <span>Projects</span><span>AI</span>
+        <i></i>
+      </p>
+
+      <p class="chrono__hint" aria-hidden="true">
+        Move<br>to travel<br>through time<i></i>
+      </p>
+      <p class="chrono__note chrono__note--bl" aria-hidden="true">
+        Code<br>& Logic<br>a brighter<br>tomorrow
+      </p>
+      <p class="chrono__note chrono__note--br" aria-hidden="true">
+        Still<br>engineering<br>what's<br>next<i></i>
+      </p>
+
+      <div class="chrono__deck" id="chronoDeck"></div>
+
+      <canvas id="chronoFront" aria-hidden="true"></canvas>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- Scene 04: Project Amphitheatre -->
+  <section class="gallery" id="gallery" aria-labelledby="galleryTitle">
+    <div class="gallery__pin">
+      <canvas id="galleryStage" aria-hidden="true"></canvas>
+
+      <div class="gallery__world">
+        <div class="gallery__deck" id="galleryDeck"></div>
+        <img class="gallery__person" id="galleryPerson"
+             src="public/projects/person.png" alt="" draggable="false">
+      </div>
+
+      <h2 class="g-label g-label--projects" id="galleryTitle">Projects</h2>
+      <p class="g-label g-label--ideas" aria-hidden="true">
+        Code<br>Algorithms<br>Intelligent AI<br><b>Real Impact</b>
+      </p>
+      <p class="g-label g-label--scroll" aria-hidden="true">
+        Click Card<br>Inspect Details<br>Explore Code
+      </p>
+      <p class="g-label g-label--real" aria-hidden="true">
+        Engineering<br>Systems<br>Real-World<br>Solutions
+      </p>
+      <p class="g-label g-label--tomorrow" aria-hidden="true">
+        Building<br>A Smarter<br>Tomorrow
+      </p>
+      <span class="g-label g-label--num" id="galleryNum" aria-hidden="true">01</span>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- Scene 05: Experience, Education & Credentials -->
+  <section class="credentials-sec" id="about" aria-labelledby="aboutTitle">
+    <div class="sec-wrap">
+      <header class="sec-header">
+        <p class="sec-over">Scene 05</p>
+        <h2 class="sec-title" id="aboutTitle">Experience & Credentials</h2>
+        <p class="sec-sub">Computer Science Engineer · Amritsar, Punjab, India</p>
+      </header>
+
+      <!-- Executive Profile Summary -->
+      <div class="summary-card">
+        <p>
+          <strong>Computer Science Engineering student</strong> with strong foundations in
+          <strong>Data Structures, Algorithms, DBMS, Operating Systems, Object-Oriented Programming and Web Development</strong>.
+          Proficient in building scalable applications using <strong>C++, Python, JavaScript, SQL and APIs</strong>.
+          Developed AI-powered applications, database-driven systems and responsive web applications with hands-on experience in
+          Frontend Development, Backend Development Basics, Git Version Control, AI Tools and Problem Solving.
+          Skilled in modern AI development and automation tools including <strong>Codex, Claude, ChatGPT and n8n</strong>.
+          Solved <strong>250+ coding problems</strong> across competitive programming platforms with a
+          <strong>5 Star HackerRank rating in C++</strong>. Seeking Software Engineering or AI/ML internship opportunities.
+        </p>
+        <div class="highlight-pills">
+          <span class="pill pill--hot">★ 5-Star HackerRank in C++</span>
+          <span class="pill">250+ DSA Problems Solved</span>
+          <span class="pill">Ninja Dominator Badge — Code360</span>
+          <span class="pill">B.Tech CSE (2023 – Present)</span>
+          <span class="pill">Prompt Engineering & n8n Automation</span>
+          <span class="pill">AI/ML Predictive Modeling</span>
+        </div>
+      </div>
+
+      <div class="creds-grid">
+        <!-- Internship & Training -->
+        <div class="mod-box col-7">
+          <h3 class="mod-title">
+            <span>Internship & Training</span>
+            <span class="icon">⚡</span>
+          </h3>
+          <div class="exp-timeline">
+            <div class="exp-item">
+              <h4 class="exp-role">AI/ML Virtual Internship Training</h4>
+              <div class="exp-meta">
+                <span>SkillEcted Campus Program</span>
+                <span>•</span>
+                <span>Remote</span>
+                <span>•</span>
+                <span>2026</span>
+              </div>
+              <ul class="exp-bullets">
+                <li>Implemented Machine Learning concepts for predictive systems and intelligent applications using Python-based workflows.</li>
+                <li>Developed a House Price Prediction model using regression-based Machine Learning techniques and data preprocessing methods.</li>
+                <li>Worked with datasets, predictive modeling workflows and AI development concepts to improve analytical understanding.</li>
+                <li>Strengthened knowledge of model training, data analysis and AI-driven application development.</li>
+              </ul>
+            </div>
+
+            <div class="exp-item">
+              <h4 class="exp-role">Prompt Engineering & AI Automation Bootcamp</h4>
+              <div class="exp-meta">
+                <span>AI Tools and Workflow Automation Training</span>
+                <span>•</span>
+                <span>Remote</span>
+                <span>•</span>
+                <span>2026</span>
+              </div>
+              <ul class="exp-bullets">
+                <li>Learned advanced prompt engineering techniques for AI-assisted development, automation and content generation workflows.</li>
+                <li>Worked with AI tools including Codex, Claude, ChatGPT and n8n for code generation, workflow automation and productivity optimization.</li>
+                <li>Implemented AI-assisted development workflows for debugging, automation and intelligent task execution.</li>
+                <li>Gained practical exposure to no-code and low-code automation pipelines using n8n integrations and AI agents.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Skills Matrix -->
+        <div class="mod-box col-5">
+          <h3 class="mod-title">
+            <span>Technical Skills Matrix</span>
+            <span class="icon">⚙</span>
+          </h3>
+          <div class="skills-stack">
+            <div class="skill-group">
+              <h4>Programming Languages</h4>
+              <div class="skill-tags">
+                <span class="skill-tag skill-tag--featured">C++ (5★ HackerRank)</span>
+                <span class="skill-tag skill-tag--featured">Python</span>
+                <span class="skill-tag skill-tag--featured">JavaScript</span>
+                <span class="skill-tag">SQL</span>
+                <span class="skill-tag">C</span>
+                <span class="skill-tag">Java</span>
+              </div>
+            </div>
+
+            <div class="skill-group">
+              <h4>AI Tools & Automation</h4>
+              <div class="skill-tags">
+                <span class="skill-tag skill-tag--featured">ChatGPT</span>
+                <span class="skill-tag skill-tag--featured">Claude</span>
+                <span class="skill-tag skill-tag--featured">n8n Automation</span>
+                <span class="skill-tag">Gemini</span>
+                <span class="skill-tag">Codex</span>
+                <span class="skill-tag">Perplexity</span>
+                <span class="skill-tag">DeepSeek</span>
+                <span class="skill-tag">Prompt Engineering</span>
+                <span class="skill-tag">AI Agents</span>
+              </div>
+            </div>
+
+            <div class="skill-group">
+              <h4>Databases & Big Data</h4>
+              <div class="skill-tags">
+                <span class="skill-tag">MySQL</span>
+                <span class="skill-tag">PostgreSQL</span>
+                <span class="skill-tag">Apache Hadoop</span>
+                <span class="skill-tag">Apache Pig</span>
+              </div>
+            </div>
+
+            <div class="skill-group">
+              <h4>Developer Tools & CS Fundamentals</h4>
+              <div class="skill-tags">
+                <span class="skill-tag">Git / GitHub</span>
+                <span class="skill-tag">VS Code</span>
+                <span class="skill-tag">Android Studio</span>
+                <span class="skill-tag">Data Structures & Algorithms</span>
+                <span class="skill-tag">DBMS</span>
+                <span class="skill-tag">Operating Systems</span>
+                <span class="skill-tag">Computer Networks</span>
+                <span class="skill-tag">OOP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education Pathway -->
+        <div class="mod-box col-6">
+          <h3 class="mod-title">
+            <span>Education</span>
+            <span class="icon">🎓</span>
+          </h3>
+          <div class="edu-list">
+            <div class="edu-item">
+              <h4 class="edu-name">Amritsar College of Engineering & Technology</h4>
+              <p class="edu-degree">Bachelor of Technology (B.Tech) - Computer Science Engineering</p>
+              <span class="edu-period">2023 – Present • Amritsar, Punjab, India</span>
+            </div>
+            <div class="edu-item">
+              <h4 class="edu-name">Nauhata Senior Secondary School</h4>
+              <p class="edu-degree">Senior Secondary (Class XII) - BSEB</p>
+              <span class="edu-period">2023 • Bihar, India</span>
+            </div>
+            <div class="edu-item">
+              <h4 class="edu-name">DAV Public School, Pusauli</h4>
+              <p class="edu-degree">Secondary School (Class X) - CBSE</p>
+              <span class="edu-period">2020 • Bihar, India</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certifications & Coding Profiles -->
+        <div class="mod-box col-6">
+          <h3 class="mod-title">
+            <span>Certifications & Profiles</span>
+            <span class="icon">🏆</span>
+          </h3>
+          <div class="cert-list">
+            <div class="cert-card">
+              <span class="cert-icon">★</span>
+              <div class="cert-info">
+                <h5>HackerRank — 5 Star in C++</h5>
+                <span>Algorithmic & Problem Solving Mastery</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <span class="cert-icon">◈</span>
+              <div class="cert-info">
+                <h5>Coding Ninjas Code360</h5>
+                <span>Ninja Dominator Badge • 250+ Problems</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <span class="cert-icon">⚡</span>
+              <div class="cert-info">
+                <h5>Generative AI Mastermind</h5>
+                <span>Outskill</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <span class="cert-icon">⚡</span>
+              <div class="cert-info">
+                <h5>Machine Learning Bootcamp</h5>
+                <span>SkillEcted</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <span class="cert-icon">⚡</span>
+              <div class="cert-info">
+                <h5>Prompt Engineering & AI Automation</h5>
+                <span>Bootcamp 2026</span>
+              </div>
+            </div>
+            <div class="cert-card">
+              <span class="cert-icon">⚡</span>
+              <div class="cert-info">
+                <h5>Intro to Computer Science</h5>
+                <span>HarvardX</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom GPTs & Leadership -->
+        <div class="mod-box col-12">
+          <h3 class="mod-title">
+            <span>Custom GPTs, Leadership & Languages</span>
+            <span class="icon">✦</span>
+          </h3>
+          <div class="extra-grid">
+            <div class="extra-card">
+              <h5>X Tweet Generator</h5>
+              <p>Custom GPT designed for algorithmic, high-converting social copy and viral post optimization.</p>
+            </div>
+            <div class="extra-card">
+              <h5>AI Detector</h5>
+              <p>Specialized agent detecting syntactic markers and synthetic language characteristics.</p>
+            </div>
+            <div class="extra-card">
+              <h5>Code Analyzer & Debugger</h5>
+              <p>Automated static code review agent providing bug fixes, complexity analysis, and optimization.</p>
+            </div>
+            <div class="extra-card">
+              <h5>Leadership & NSS</h5>
+              <p>Served as volunteer coordinator in Sports, Cultural and NSS committees at college level.</p>
+            </div>
+            <div class="extra-card">
+              <h5>Languages</h5>
+              <p>Hindi (Native) • English (Professional Working Proficiency)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================== -->
+  <!-- Scene 06: Contact & Direct Connect -->
+  <section class="contact-sec" id="contact" aria-labelledby="contactTitle">
+    <div class="sec-wrap">
+      <header class="sec-header">
+        <p class="sec-over">Get In Touch</p>
+        <h2 class="sec-title" id="contactTitle">Let's Connect</h2>
+        <p class="sec-sub">Open for Software Engineering & AI/ML Opportunities</p>
+      </header>
+
+      <div class="contact-grid">
+        <!-- Direct Contacts -->
+        <div class="contact-info-panel">
+          <div class="contact-card-direct">
+            <a href="mailto:piyushpandey.ssm95@gmail.com" class="contact-method">
+              <div class="cm-icon">✉</div>
+              <div class="cm-text">
+                <span class="cm-label">Email Directly</span>
+                <span class="cm-val">piyushpandey.ssm95@gmail.com</span>
+              </div>
+            </a>
+
+            <a href="tel:+916206893468" class="contact-method">
+              <div class="cm-icon">✆</div>
+              <div class="cm-text">
+                <span class="cm-label">Phone / WhatsApp</span>
+                <span class="cm-val">+91-6206893468</span>
+              </div>
+            </a>
+
+            <div class="contact-method">
+              <div class="cm-icon">📍</div>
+              <div class="cm-text">
+                <span class="cm-label">Location</span>
+                <span class="cm-val">Amritsar, Punjab, India</span>
+              </div>
+            </div>
+
+            <div class="contact-method">
+              <div class="cm-icon">💼</div>
+              <div class="cm-text">
+                <span class="cm-label">Target Roles</span>
+                <span class="cm-val">Software Engineering / AI/ML Intern</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Direct Message Form -->
+        <form class="contact-form" id="contactForm">
+          <div class="form-group">
+            <label for="cName">Your Name</label>
+            <input type="text" id="cName" class="form-input" placeholder="e.g. Hiring Manager / Recruiter" required>
+          </div>
+          <div class="form-group">
+            <label for="cEmail">Your Email</label>
+            <input type="email" id="cEmail" class="form-input" placeholder="name@company.com" required>
+          </div>
+          <div class="form-group">
+            <label for="cMsg">Message</label>
+            <textarea id="cMsg" class="form-input" rows="4" placeholder="Let's discuss an engineering role or project..." required></textarea>
+          </div>
+          <button type="submit" class="form-submit-btn">Send Message</button>
+          <div class="form-alert" id="contactAlert" role="alert"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ====================================================================== -->
+<!-- Finale & Closing -->
+<footer class="fin" id="fin" aria-label="Closing">
+  <div class="fin__pin">
+    <h2 class="sr-only">Piyush Pandey</h2>
+
+    <div class="fin__stage1" id="finStage1">
+      <canvas id="finBack" aria-hidden="true"></canvas>
+      <canvas id="finMan" aria-hidden="true"></canvas>
+
+      <p class="f-cap f-cap--tl" aria-hidden="true">
+        C++<br>Python<br>AI / ML<br>Real Impact
+      </p>
+      <blockquote class="f-cap f-cap--quote">
+        &ldquo;Engineering<br>Scalable<br>Intelligent<br>Systems.&rdquo;
+      </blockquote>
+      <p class="f-cap f-cap--blw" aria-hidden="true">A<br>Developer&rsquo;s<br>World</p>
+      <p class="f-cap f-cap--tr" aria-hidden="true">
+        Continuous<br>Learning<br>A Brighter<br>Tomorrow
+      </p>
+      <p class="f-cap f-cap--br" aria-hidden="true">Code<br>Build<br>Automate<br>Scale</p>
+    </div>
+
+    <div class="fin__dim" id="finDim" aria-hidden="true"></div>
+
+    <figure class="fin__frame2" id="finFrame2" aria-hidden="true" hidden>
+      <img id="finFrame2Img" alt="" draggable="false" decoding="async">
+    </figure>
+
+    <div class="fin__bar">
+      <a href="#contact" data-nav>Get In Touch</a>
+      <nav class="fin__soc" aria-label="Social">
+        <a href="https://github.com" target="_blank" rel="noopener me">GitHub</a>
+        <a href="https://linkedin.com" target="_blank" rel="noopener me">LinkedIn</a>
+        <a href="mailto:piyushpandey.ssm95@gmail.com" rel="me">Email</a>
+        <a href="tel:+916206893468" rel="me">+91-6206893468</a>
+      </nav>
+      <small class="fin__c">&copy; 2026 Piyush Pandey &mdash; All rights reserved</small>
+    </div>
+  </div>
+</footer>
+
+<!-- Project Details Modal -->
+<div class="pm-backdrop" id="projectModal" aria-hidden="true" role="dialog" aria-modal="true">
+  <div class="pm-modal">
+    <button class="pm-close" id="pmClose" aria-label="Close modal">✕</button>
+    <div class="pm-header">
+      <div class="pm-tag-row">
+        <span class="pm-badge" id="pmBadge">AI & NLP</span>
+        <span class="pm-year" id="pmYear">2025</span>
+      </div>
+      <h3 class="pm-title" id="pmTitle">AI-Powered Conversational Assistant</h3>
+      <p class="pm-sub" id="pmSub">Python · REST APIs · Intelligent NLP</p>
+    </div>
+    <ul class="pm-bullets" id="pmBullets">
+      <!-- Injected dynamically -->
+    </ul>
+    <div class="pm-actions">
+      <a href="https://github.com" target="_blank" rel="noopener" class="pm-btn pm-btn--primary">View on GitHub ↗</a>
+      <a href="#contact" class="pm-btn pm-btn--secondary" onclick="document.getElementById('projectModal').classList.remove('is-open'); document.body.style.overflow='';">Contact About Project</a>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
