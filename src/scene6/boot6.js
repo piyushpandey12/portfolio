@@ -36,9 +36,11 @@ export async function initFinale() {
   if (frame2 && frame2Img) {
 
     const candidates = [
-      'footer%202nd%20image.jpg',
       'public/fin/frame2.jpg',
-      'Footer%20image%202.jpg',
+      'fin/frame2.jpg',
+      '/fin/frame2.jpg',
+      'public/fin/footer_2nd_image.jpg',
+      'footer%202nd%20image.jpg',
     ];
     (function tryNext(i) {
       if (i >= candidates.length) return;
