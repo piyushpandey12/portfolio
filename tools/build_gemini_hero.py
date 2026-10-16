@@ -1,4 +1,4 @@
-﻿import json
+import json
 import os
 import subprocess
 import cv2
@@ -22,19 +22,29 @@ def get_ffmpeg():
     except Exception:
         return "ffmpeg"
 
-def process_frame(fr, k_vert):
+def process_frame(fr):
     h, w = fr.shape[:2]
     gray = cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY)
     
-    fg = (gray >= 4).astype(np.uint8)
-    fg_closed = cv2.morphologyEx(fg, cv2.MORPH_CLOSE, k_vert)
+    fg = (gray >= 5).astype(np.uint8)
+    fg_closed = cv2.morphologyEx(fg, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11)))
     
     inv = (1 - fg_closed).astype(np.uint8)
     guard = np.zeros((h + 2, w + 2), np.uint8)
-    for sx, sy in ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)):
-        cv2.floodFill(inv, guard, (sx, sy), 2)
-    holes = ((inv == 1) & (fg_closed == 0)).astype(np.uint8)
+    for y in range(0, h, 20):
+        if inv[y, 0] == 1:
+            cv2.floodFill(inv, guard, (0, y), 2)
+        if inv[y, w - 1] == 1:
+            cv2.floodFill(inv, guard, (w - 1, y), 2)
+    for x in range(0, w, 20):
+        if inv[0, x] == 1:
+            cv2.floodFill(inv, guard, (x, 0), 2)
+            
+    holes = (inv == 1).astype(np.uint8)
     solid = ((fg_closed == 1) | (holes == 1)).astype(np.uint8)
+    
+    contours, _ = cv2.findContours(solid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(solid, contours, -1, 1, thickness=-1)
     
     num_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(solid, 8)
     if num_labels <= 1:
@@ -43,8 +53,8 @@ def process_frame(fr, k_vert):
     largest = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
     person = (labels == largest).astype(np.uint8)
     
-    top_fade = np.clip(np.linspace(0.0, 1.0, 24)[:, None] * 1.5, 0.0, 1.0)
-    person[:24, :] = (person[:24, :].astype(np.float32) * top_fade).astype(np.uint8)
+    top_fade = np.clip(np.linspace(0.0, 1.0, 16)[:, None] * 1.5, 0.0, 1.0)
+    person[:16, :] = (person[:16, :].astype(np.float32) * top_fade).astype(np.uint8)
     
     alpha = cv2.GaussianBlur(person.astype(np.float32), (5, 5), 0.8)
     alpha = np.clip(alpha, 0.0, 1.0)
@@ -73,8 +83,6 @@ def main():
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS) or 24.0
     
-    k_vert = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (19, 27))
-    
     pipe_mp4 = subprocess.Popen([
         ffmpeg, "-y",
         "-f", "rawvideo", "-vcodec", "rawvideo",
@@ -102,7 +110,7 @@ def main():
         ret, fr = cap.read()
         if not ret: break
         
-        matte, box = process_frame(fr, k_vert)
+        matte, box = process_frame(fr)
         boxes.append(box)
         
         if not first_frame_saved:
