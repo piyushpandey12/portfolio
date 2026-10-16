@@ -1,4 +1,5 @@
 # Python dependencies for offline video matte & asset processing tools
-opencv-python>=5.0.0
+opencv-contrib-python>=5.0.0
 numpy>=2.0.0
 Pillow>=10.0.0
+imageio-ffmpeg>=0.5.0

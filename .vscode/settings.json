@@ -1,0 +1,9 @@
+{
+  "python.defaultInterpreterPath": "c:/Users/Dreamland/Downloads/cinematic-portofilo/.venv/Scripts/python.exe",
+  "python.analysis.extraPaths": [
+    "c:/Users/Dreamland/Downloads/cinematic-portofilo/tools",
+    "c:/Users/Dreamland/Downloads/cinematic-portofilo/.venv/Lib/site-packages",
+    "tools",
+    ".venv/Lib/site-packages"
+  ]
+}

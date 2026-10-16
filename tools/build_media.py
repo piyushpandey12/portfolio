@@ -17,7 +17,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from matte import process  # noqa: E402
+from matte import process, get_ffmpeg_bin  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "assets_src")
@@ -72,6 +72,8 @@ def build_grunge():
     neighbouring ink rather than left as flat plates.
     """
     img = cv2.imread(os.path.join(SRC, "ref_typo.jpg"))
+    if img is None:
+        return
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     red = ((hsv[:, :, 1] > 90) & (hsv[:, :, 2] > 60)).astype(np.uint8)
     ys, xs = np.nonzero(red)
@@ -189,10 +191,11 @@ def stage_universe_film():
     moved to the front so playback can start before the file finishes."""
     src = os.path.join(ROOT, "section 2 refrence video.mp4")
     dst = os.path.join(MEDIA, "universe.mp4")
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src,
+    ff = get_ffmpeg_bin()
+    subprocess.run([ff, "-v", "error", "-y", "-i", src,
                     "-c:v", "copy", "-an", "-movflags", "+faststart", dst],
                    check=True)
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", dst,
+    subprocess.run([ff, "-v", "error", "-y", "-i", dst,
                     "-frames:v", "1", "-q:v", "4",
                     os.path.join(MEDIA, "universe.jpg")], check=True)
     print("  universe film staged (%d KB)" % (os.path.getsize(dst) // 1024))

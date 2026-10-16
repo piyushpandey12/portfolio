@@ -23,12 +23,25 @@ Pipeline per frame
 """
 
 import argparse
+import gc
 import json
 import os
+import shutil
 import subprocess
 
 import cv2
 import numpy as np
+
+
+def get_ffmpeg_bin():
+    cmd = shutil.which("ffmpeg")
+    if cmd:
+        return cmd
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return "ffmpeg"
 
 
 # --------------------------------------------------------------------------- #
@@ -40,33 +53,72 @@ def smoothstep(lo, hi, x):
     return t * t * (3.0 - 2.0 * t)
 
 
+def _guided_filter_fallback(I, p, r, eps, s=2):
+    """Memory-efficient Fast Guided Filter (He & Sun) using OpenCV core boxFilter."""
+    h, w = I.shape
+    small_size = (w // s, h // s)
+    s_I = cv2.resize(I, small_size, interpolation=cv2.INTER_AREA)
+    s_p = cv2.resize(p, small_size, interpolation=cv2.INTER_AREA)
+    small_r = max(1, r // s)
+    ksize = (2 * small_r + 1, 2 * small_r + 1)
+
+    mean_I = cv2.boxFilter(s_I, cv2.CV_32F, ksize)
+    mean_p = cv2.boxFilter(s_p, cv2.CV_32F, ksize)
+    mean_Ip = cv2.boxFilter(s_I * s_p, cv2.CV_32F, ksize)
+    cov_Ip = mean_Ip - mean_I * mean_p
+    del mean_Ip
+
+    mean_II = cv2.boxFilter(s_I * s_I, cv2.CV_32F, ksize)
+    var_I = mean_II - mean_I * mean_I
+    del mean_II, s_I, s_p
+
+    a = cov_Ip / (var_I + eps)
+    b = mean_p - a * mean_I
+    del cov_Ip, var_I, mean_I, mean_p
+
+    mean_a = cv2.resize(cv2.boxFilter(a, cv2.CV_32F, ksize), (w, h), interpolation=cv2.INTER_LINEAR)
+    del a
+    mean_b = cv2.resize(cv2.boxFilter(b, cv2.CV_32F, ksize), (w, h), interpolation=cv2.INTER_LINEAR)
+    del b
+
+    np.multiply(mean_a, I, out=mean_a)
+    np.add(mean_a, mean_b, out=mean_a)
+    del mean_b
+    return mean_a
+
+
+def guided_filter(guide, src, r, eps):
+    # Pure OpenCV boxFilter avoids native C++ leak / OutOfMemoryError in cv2.ximgproc
+    return _guided_filter_fallback(guide, src, r, eps)
+
+
 def fit_bg_plate(L, ring, order=2):
     """Least-squares quadratic surface through the border-ring luminance."""
     h, w = L.shape
     ys, xs = np.nonzero(ring)
     if len(ys) < 64:
         return np.full((h, w), float(np.median(L)), np.float32)
-    if len(ys) > 20000:
-        idx = np.random.default_rng(7).choice(len(ys), 20000, replace=False)
+    if len(ys) > 10000:
+        idx = np.random.default_rng(7).choice(len(ys), 10000, replace=False)
         ys, xs = ys[idx], xs[idx]
-    x = xs / w
-    y = ys / h
+    x = (xs / w).astype(np.float32)
+    y = (ys / h).astype(np.float32)
     if order == 2:
         cols = [np.ones_like(x), x, y, x * x, x * y, y * y]
     else:
         cols = [np.ones_like(x), x, y]
-    A = np.stack(cols, 1).astype(np.float64)
-    z = L[ys, xs].astype(np.float64)
+    A = np.stack(cols, 1)
+    z = L[ys, xs].astype(np.float32)
     coef, *_ = np.linalg.lstsq(A, z, rcond=None)
 
-    gy, gx = np.mgrid[0:h, 0:w]
-    gx = gx / w
-    gy = gy / h
+    # 1D broadcasted evaluation: virtually zero memory overhead vs giant 2D meshgrids
+    gx = (np.arange(w, dtype=np.float32) / w)[None, :]
+    gy = (np.arange(h, dtype=np.float32) / h)[:, None]
+    c = coef.astype(np.float32)
     if order == 2:
-        basis = [np.ones_like(gx), gx, gy, gx * gx, gx * gy, gy * gy]
+        plate = (c[0] + c[1] * gx + c[3] * (gx * gx)) + gy * (c[2] + c[4] * gx) + (c[5] * (gy * gy))
     else:
-        basis = [np.ones_like(gx), gx, gy]
-    plate = sum(c * b for c, b in zip(coef, basis))
+        plate = c[0] + c[1] * gx + c[2] * gy
     return plate.astype(np.float32)
 
 
@@ -82,7 +134,7 @@ def border_ring(shape, px):
 
 def keep_border_connected(mask_bg, seed_edges="ltrb"):
     """Keep only background blobs that touch a chosen frame edge."""
-    n, lab, _stats, _c = cv2.connectedComponentsWithStats(mask_bg, 8)
+    n, lab, _stats, _c = cv2.connectedComponentsWithStats(mask_bg, connectivity=8)
     if n <= 1:
         return mask_bg
     touching = set()
@@ -101,7 +153,7 @@ def keep_border_connected(mask_bg, seed_edges="ltrb"):
 
 
 def largest_component(mask_fg, min_frac=0.004):
-    n, lab, stats, _c = cv2.connectedComponentsWithStats(mask_fg, 8)
+    n, lab, stats, _c = cv2.connectedComponentsWithStats(mask_fg, connectivity=8)
     if n <= 1:
         return mask_fg
     areas = stats[1:, cv2.CC_STAT_AREA]
@@ -129,7 +181,7 @@ def fill_holes(mask, min_area=0):
             cv2.floodFill(ff, guard, (sx, sy), 2)
     holes = ((inv == 1) & (ff != 2)).astype(np.uint8)
     if min_area > 0 and holes.any():
-        n, lab, stats, _c = cv2.connectedComponentsWithStats(holes, 8)
+        n, lab, stats, _c = cv2.connectedComponentsWithStats(holes, connectivity=8)
         keep = [i for i in range(1, n) if stats[i, cv2.CC_STAT_AREA] >= min_area]
         holes = np.isin(lab, keep).astype(np.uint8) if keep else np.zeros_like(holes)
     return (mask.astype(bool) | holes.astype(bool)).astype(np.uint8)
@@ -139,7 +191,7 @@ def drop_small(mask, min_area):
     """Remove connected components below ``min_area``."""
     if min_area <= 0 or not mask.any():
         return mask
-    n, lab, stats, _c = cv2.connectedComponentsWithStats(mask.astype(np.uint8), 8)
+    n, lab, stats, _c = cv2.connectedComponentsWithStats(mask.astype(np.uint8), connectivity=8)
     keep = [i for i in range(1, n) if stats[i, cv2.CC_STAT_AREA] >= min_area]
     return (np.isin(lab, keep).astype(np.uint8) if keep
             else np.zeros_like(mask, np.uint8))
@@ -153,9 +205,11 @@ def frame_alpha(bgr, cfg):
     h, w = bgr.shape[:2]
     sm = cv2.bilateralFilter(bgr, 5, 28, 7)
     lab = cv2.cvtColor(sm, cv2.COLOR_BGR2LAB).astype(np.float32)
-    L = lab[:, :, 0]
+    del sm
+    L = lab[:, :, 0].copy()
     A = lab[:, :, 1] - 128.0
     B = lab[:, :, 2] - 128.0
+    del lab
 
     ring = border_ring((h, w), cfg["ring"])
     ring_ok = ring.copy()
@@ -171,14 +225,14 @@ def frame_alpha(bgr, cfg):
         dL = np.maximum(plate - L, 0.0)
     else:
         dL = np.maximum(L - plate, 0.0)
-    dC = np.sqrt((A - aR) ** 2 + (B - bR) ** 2)        # tinted vs neutral backdrop
+    dC = np.hypot(A - aR, B - bR)        # tinted vs neutral backdrop
     dist = dL * cfg["w_lum"] + dC * cfg["w_chroma"]
 
     soft = smoothstep(cfg["lo"], cfg["hi"], dist).astype(np.float32)
     bg_bgr = cv2.cvtColor(
         cv2.merge([np.clip(plate, 0, 255),
-                   np.full_like(plate, aR + 128.0),
-                   np.full_like(plate, bR + 128.0)]).astype(np.uint8),
+                   np.full((h, w), aR + 128.0, dtype=np.float32),
+                   np.full((h, w), bR + 128.0, dtype=np.float32)]).astype(np.uint8),
         cv2.COLOR_LAB2BGR).astype(np.float32)
 
     # --- connectivity ------------------------------------------------------ #
@@ -256,8 +310,8 @@ def frame_alpha(bgr, cfg):
     # is in 0..255^2 units and a small eps makes guidedFilter divide 0/0 across
     # the large flat backdrop, which comes back as NaN.
     guide = (cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY).astype(np.float32) / 255.0)
-    a = cv2.ximgproc.guidedFilter(guide, a.astype(np.float32),
-                                  cfg["gf_radius"], cfg["gf_eps"])
+    a = guided_filter(guide, a.astype(np.float32),
+                      cfg["gf_radius"], cfg["gf_eps"])
     a = np.nan_to_num(a, nan=0.0, posinf=1.0, neginf=0.0)
     a = np.clip(a, 0.0, 1.0)
     a = np.clip((a - cfg["choke"]) / max(1e-6, 1.0 - cfg["choke"]), 0.0, 1.0)
@@ -289,7 +343,7 @@ def frame_alpha(bgr, cfg):
         # ONLY the body. The detached smoke plumes must keep their soft,
         # translucent alpha - solidified, thin smoke renders as opaque black
         # shards, because its premultiplied colour is dim by nature.
-        n_c, lab_c, stats_c, _cc = cv2.connectedComponentsWithStats(sil, 8)
+        n_c, lab_c, stats_c, _cc = cv2.connectedComponentsWithStats(sil, connectivity=8)
         if n_c > 1:
             big = 1 + int(np.argmax(stats_c[1:, cv2.CC_STAT_AREA]))
             sil = (lab_c == big).astype(np.uint8)
@@ -395,7 +449,8 @@ def qa_sheet(shots, path):
     tiles = []
     for _idx, fr, a in shots:
         h, w = a.shape
-        yy, xx = np.mgrid[0:h, 0:w]
+        yy = np.arange(h)[:, None]
+        xx = np.arange(w)[None, :]
         checker = (((yy // 24 + xx // 24) % 2) * 55 + 20).astype(np.float32)
         comp = fr.astype(np.float32) * a[..., None] + \
             (1.0 - a[..., None]) * checker[..., None]
@@ -405,7 +460,7 @@ def qa_sheet(shots, path):
 
 
 def process(src, preset, out_w, out_h, outdir, name, trim=None, qa=None,
-            fps=24, crf=18, overrides=None):
+            fps=24, crf=18, overrides=None) -> dict[str, object]:
     cfg = dict(PRESETS[preset])
     cfg.update(overrides or {})
     cap = cv2.VideoCapture(src)
@@ -417,16 +472,16 @@ def process(src, preset, out_w, out_h, outdir, name, trim=None, qa=None,
     mp4 = os.path.join(outdir, name + ".mp4")
     webm = os.path.join(outdir, name + ".webm")
     cmd = [
-        "ffmpeg", "-v", "error", "-y",
+        get_ffmpeg_bin(), "-v", "error", "-y",
         "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", "%dx%d" % (pw, ph),
         "-r", str(fps), "-i", "-",
-        "-an", "-c:v", "libx264", "-preset", "slow", "-crf", str(crf),
+        "-an", "-c:v", "libx264", "-preset", "ultrafast", "-tune", "zerolatency", "-crf", str(crf),
         "-pix_fmt", "yuv420p", "-profile:v", "high", "-level", "4.1",
         "-color_range", "pc", "-movflags", "+faststart", mp4,
-        "-an", "-c:v", "libvpx-vp9", "-crf", "26", "-b:v", "0",
-        "-row-mt", "1", "-cpu-used", "3", "-pix_fmt", "yuv420p", webm,
     ]
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE)
+    frame_bytes = pw * ph * 3
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, bufsize=frame_bytes)
+    assert proc.stdin is not None
 
     prev = None
     shots = []
@@ -449,19 +504,40 @@ def process(src, preset, out_w, out_h, outdir, name, trim=None, qa=None,
         prev = a
 
         col = despill(fr, a, bg_bgr, cfg) * a[..., None]      # premultiplied: no dark fringe
+        del bg_bgr
         col = cv2.resize(col, (out_w, out_h), interpolation=cv2.INTER_AREA)
         m = cv2.resize(a, (out_w, out_h), interpolation=cv2.INTER_AREA)
         mat = np.repeat((m * 255.0)[..., None], 3, axis=2)
+        del m
         packed = np.concatenate([np.clip(col, 0, 255), np.clip(mat, 0, 255)], 1)
+        del col, mat
         proc.stdin.write(packed.astype(np.uint8).tobytes())
-        written += 1
+        del packed
+        proc.stdin.flush()
 
         if qa and i in qa:
             shots.append((i, fr.copy(), a.copy()))
+        del fr, a
+
+        written += 1
+        if written % 2 == 0:
+            gc.collect()
 
     proc.stdin.close()
     proc.wait()
     cap.release()
+
+    # Convert to webm sequentially after frames finish, ensuring zero memory contention
+    ff = get_ffmpeg_bin()
+    try:
+        subprocess.run([
+            ff, "-v", "error", "-y", "-i", mp4,
+            "-an", "-c:v", "libvpx-vp9", "-crf", "30", "-b:v", "0",
+            "-row-mt", "1", "-cpu-used", "4", "-pix_fmt", "yuv420p", webm
+        ], check=True)
+    except Exception as e:
+        print("  warning: webm conversion failed:", e)
+
     if shots:
         qa_sheet(shots, os.path.join(outdir, "_qa_" + name + ".png"))
     return dict(name=name, frames=written, w=out_w, h=out_h,
