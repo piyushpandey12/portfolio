@@ -1,12 +1,3 @@
-/* ==========================================================================
-   Scene four — the project universe.
-   The reference image is rebuilt as living layers: the room is the extracted
-   plate on canvas, the twelve screens are DOM buttons wearing sprites cut
-   from that same image, the creator is its matted centre. This sheet carries
-   the layer stack, the hover life and the caption typography; the entrance
-   choreography itself is driven per-frame from boot4.js.
-   ========================================================================== */
-
 .gallery {
   position: relative;
   height: 260svh;
@@ -29,7 +20,6 @@
   display: block;
 }
 
-/* the 3D room the cards live in */
 .gallery__world {
   position: absolute;
   inset: 0;
@@ -43,12 +33,6 @@
   transform-style: preserve-3d;
   will-change: transform;
 }
-
-/* --------------------------------------------------------------------------
-   Cards. The sprite carries the reference's own bezel, rim light and glow,
-   so the button is chrome-free: no border, no background — just the pixels,
-   an easing inner shell for hover/float, and a tinted shadow when lifted.
-   -------------------------------------------------------------------------- */
 
 .g-card {
   position: absolute;
@@ -80,8 +64,6 @@
   user-select: none;
 }
 
-/* hover: toward the camera, a touch brighter, its glow deepened — and the
-   rest of the room eases back a breath so the depth reads */
 .g-card:hover .g-card__in,
 .g-card:focus-visible .g-card__in {
   transform: translateZ(30px) scale(1.022);
@@ -103,16 +85,13 @@
 .gallery__person {
   position: absolute;
   display: block;
+  height: auto;
+  max-width: none;
   opacity: 0;
   pointer-events: none;
   user-select: none;
   will-change: transform, opacity;
 }
-
-/* --------------------------------------------------------------------------
-   Corner captions — the reference's HUD. Letterspaced hairline sans, amber
-   headline, dashes as punctuation. They type themselves in on .is-labels.
-   -------------------------------------------------------------------------- */
 
 .g-label {
   position: absolute;
@@ -170,7 +149,6 @@
   right: clamp(20px, 3vw, 52px);
 }
 
-/* the red index over the hero screen — placed by boot4 from frame coords */
 .g-label--num {
   font-family: var(--ui);
   font-weight: 500;
@@ -179,19 +157,10 @@
   transition-delay: 0.5s;
 }
 
-/* --------------------------------------------------------------------------
-   Portrait: recomposition (layout4.PORTRAIT places the survivors); the rest
-   of the deck sits this orientation out. Captions tighten into two rows.
-   -------------------------------------------------------------------------- */
-
 .gallery.is-portrait .g-label--ideas { top: clamp(64px, 9vh, 110px); }
 .gallery.is-portrait .g-label--real,
 .gallery.is-portrait .g-label--tomorrow { bottom: clamp(14px, 3vh, 30px); }
 .gallery.is-portrait .g-label--num { display: none; }
-
-/* --------------------------------------------------------------------------
-   Fallbacks
-   -------------------------------------------------------------------------- */
 
 .gallery.is-fallback #galleryStage { display: none; }
 .gallery.is-fallback .gallery__pin {

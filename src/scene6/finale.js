@@ -1,13 +1,3 @@
-// The finale's two canvases, both carrying the reference's own pixels.
-//
-//   back   the plate (wordmark + red fog + his smoke), staged and breathing
-//   front  the man, matted out of the artwork, plus a quiet veil of
-//          foreground smoke
-//
-// Both layers use the same cover mapping, so at rest the reassembly is the
-// reference image exactly; the split is what buys the reveal and the few
-// pixels of parallax depth between him, the title and the fog.
-
 import { program, unitQuad, texture, upload, bind, loadImage } from '../gl/renderer.js';
 import { V6, F6_PLATE, F6_MAN, F6_SMOKE } from '../gl/shaders6.js';
 
@@ -27,7 +17,7 @@ export class Finale {
     this.texB = { plate: texture(glB), grain: texture(glB, { wrap: 'repeat' }) };
     this.texF = { man: texture(glF), grain: texture(glF, { wrap: 'repeat' }) };
     this.par = { x: 0, y: 0 };
-    // the man's box in frame px, from fin.json - set by boot6
+
     this.manBox = [580, 170, 450, 730];
   }
 
@@ -98,8 +88,7 @@ export class Finale {
       gl.bindVertexArray(this.quadF);
 
       if (s.man > 0.001) {
-        // his quad: the frame box cover-mapped, drifting a couple of pixels
-        // WITH the pointer (nearer than the plate) and rising as he arrives
+
         const b = this.manBox;
         const rise = (1 - s.man) * 0.03;
         const rect = [

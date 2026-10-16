@@ -1,12 +1,3 @@
-// Scene four's measured geometry — every number read off the supplied
-// reference (section 4 image.jpg, 1600x900), which is the source of truth.
-// The card sprites and the environment plate are cut from that image by
-// tools/extract_s4.py; this module records where each piece goes back.
-//
-// Coordinates are reference-frame pixels. fitCover() maps the frame onto the
-// viewport the way the plate shader does (cover: fill, centre-anchored), so
-// the DOM cards and the canvas can never drift apart.
-
 export const FRAME = [1600, 900];
 
 export const CARDS = [
@@ -136,35 +127,23 @@ export const CARDS = [
     tint: [0.31, 0.317, 0.302] },
 ];
 
-// the central figure: crop box in frame px (his lighting is baked in)
-export const PERSON = { x: 718, y: 483, w: 160, h: 335 };
+export const PERSON = { x: 703, y: 330, w: 177, h: 411 };
 
-// the floor's lit ellipses (centre x, centre y, rx, ry) and the overhead ring,
-// used by the live glints the canvas draws over the baked plate
 export const FLOOR_OUT = [798, 735, 372, 80];
 export const FLOOR_IN = [798, 741, 240, 57];
 export const RING = [802, 34, 392, 148];
 
-/** Cover-fit the reference frame onto a viewport. */
 export function fitCover(w, h) {
   const s = Math.max(w / FRAME[0], h / FRAME[1]);
   return { s, ox: (w - FRAME[0] * s) / 2, oy: (h - FRAME[1] * s) / 2 };
 }
 
-// --------------------------------------------------------------------------
-// Portrait is a recomposition, not a crop: cover-fitting a 16:9 amphitheatre
-// to a phone leaves only the centre quarter on screen. The plate still cover-
-// fits (floor, circle and haze survive centred), and a curated set of cards
-// restacks into a column that keeps the reference hierarchy: hero screen up
-// top, the small row over the figure, the two green closers at his feet.
-// Entries: card index -> centre x/y (viewport fractions), width (vw fraction).
-// --------------------------------------------------------------------------
 export const PORTRAIT = new Map([
-  [2, { cx: 0.50, cy: 0.235, w: 0.80 }],   // build
-  [0, { cx: 0.235, cy: 0.385, w: 0.50 }],  // timeless
-  [3, { cx: 0.77, cy: 0.39, w: 0.48 }],    // driven
-  [6, { cx: 0.325, cy: 0.53, w: 0.29 }],   // food
-  [7, { cx: 0.675, cy: 0.53, w: 0.29 }],   // travel
-  [10, { cx: 0.20, cy: 0.815, w: 0.48 }],  // cleaner
-  [11, { cx: 0.80, cy: 0.815, w: 0.48 }],  // steps
+  [2, { cx: 0.50, cy: 0.235, w: 0.80 }],
+  [0, { cx: 0.235, cy: 0.385, w: 0.50 }],
+  [3, { cx: 0.77, cy: 0.39, w: 0.48 }],
+  [6, { cx: 0.325, cy: 0.53, w: 0.29 }],
+  [7, { cx: 0.675, cy: 0.53, w: 0.29 }],
+  [10, { cx: 0.20, cy: 0.815, w: 0.48 }],
+  [11, { cx: 0.80, cy: 0.815, w: 0.48 }],
 ]);

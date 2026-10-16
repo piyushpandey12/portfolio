@@ -1,6 +1,3 @@
-// Minimal WebGL2 helpers: programs, uniforms, textures, a unit quad.
-// Deliberately small - the interesting work is in stage.js and the shaders.
-
 export function createGL(canvas, opts = {}) {
   const gl = canvas.getContext('webgl2', {
     alpha: false,
@@ -15,7 +12,7 @@ export function createGL(canvas, opts = {}) {
   if (!gl) return null;
   gl.disable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
-  // every shader outputs premultiplied colour
+
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   return gl;
 }
@@ -44,9 +41,7 @@ export function program(gl, vert, frag, label = 'program') {
   for (let i = 0; i < n; i++) {
     const info = gl.getActiveUniform(p, i);
     uniforms[info.name] = gl.getUniformLocation(p, info.name);
-    // An array uniform is reported once, as "uThing[0]", with size = length.
-    // Locations for the remaining elements have to be requested individually
-    // or every index past the first silently writes nowhere.
+
     if (info.size > 1 && info.name.endsWith('[0]')) {
       const base = info.name.slice(0, -3);
       uniforms[base] = uniforms[info.name];
@@ -86,8 +81,7 @@ export function texture(gl, { wrap = 'clamp', filter = 'linear' } = {}) {
 }
 
 export function upload(gl, tex, source, flipY = false) {
-  // a video with no decoded frame yet, or a zero-sized canvas, throws an
-  // INVALID_VALUE that is easy to miss and leaves the texture undefined
+
   const w = source.videoWidth ?? source.naturalWidth ?? source.width;
   const h = source.videoHeight ?? source.naturalHeight ?? source.height;
   if (!w || !h) return false;

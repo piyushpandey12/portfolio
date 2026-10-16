@@ -1,10 +1,3 @@
-/* ==========================================================================
-   PIYUSH — hero
-   The artwork itself (background, wordmark, the three people) is drawn on the
-   WebGL canvas. Everything in this file is the furniture layered over it:
-   header, welcome strip, chips, arrows, dot grids.
-   ========================================================================== */
-
 @font-face {
   font-family: 'Anton';
   src: url('../../public/fonts/anton-400.woff2') format('woff2');
@@ -47,7 +40,6 @@
   --ui:  'Oswald', 'Arial Narrow', system-ui, sans-serif;
   --disp:'Anton', 'Arial Narrow', Impact, sans-serif;
 
-  /* the header height also sets the hero's top breathing room */
   --hdr-h: clamp(56px, 7.4vh, 82px);
   --edge:  clamp(14px, 1.55vw, 26px);
 
@@ -63,16 +55,28 @@ html, body {
   background: #000;
   color: var(--paper);
   font-family: var(--ui);
-  /* the document scrolls now that more scenes follow the hero; sideways
-     overflow is CLIPPED, not hidden - overflow-x:hidden promotes body to a
-     scroll container, which silently breaks every position:sticky pin in the
-     scenes below (the canvas scrolls away and leaves bare background) */
+
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* nothing may paint before the sequence is ready to start on true black */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
 html.is-booting .furniture,
 html.is-booting .hdr { opacity: 0; }
 
@@ -93,10 +97,6 @@ html.is-booting .hdr { opacity: 0; }
   width: 100%; height: 100%;
   display: block;
 }
-
-/* ==========================================================================
-   Header
-   ========================================================================== */
 
 .hdr {
   position: fixed; top: 0; left: 0; right: 0;
@@ -146,10 +146,7 @@ html.is-booting .hdr { opacity: 0; }
   font-family: var(--disp);
   font-size: clamp(20px, 2.05vw, 34px);
   letter-spacing: .012em;
-  /* the same distressed surface as the big wordmark, so the two agree.
-     NB the red must be a background-color: with background-clip:text the
-     text fill is transparent, so `color` alone paints nothing and the mark
-     comes out as bare grey texture. */
+
   background-color: var(--ink);
   background-image: url('../../public/tex/grunge.png');
   background-size: 260px;
@@ -200,7 +197,7 @@ html.is-booting .hdr { opacity: 0; }
   user-select: none;
   transition: color .28s var(--ease-out), transform .2s ease;
 }
-.hdr__nav a::after {                       /* the red dot under the active item */
+.hdr__nav a::after {
   content: '';
   position: absolute;
   left: 50%; bottom: -1px;
@@ -239,7 +236,6 @@ html.is-booting .hdr { opacity: 0; }
 
 .hdr__burger { display: none; }
 
-/* staggered arrival ------------------------------------------------------ */
 .hdr__mark, .hdr__div, .hdr__roles, .hdr__nav li, .hdr__meta {
   opacity: 0;
   transform: translateY(-9px);
@@ -259,20 +255,12 @@ html.is-booting .hdr { opacity: 0; }
 .is-header .hdr__nav li { transition-delay: calc(.36s + var(--i) * .055s); }
 .is-header .hdr__meta   { transition-delay: .62s; }
 
-/* ==========================================================================
-   Hero furniture
-   ========================================================================== */
-
 .furniture {
   position: absolute; inset: 0;
   z-index: 15;
   pointer-events: none;
 }
 
-/* --- WELCOME TO MY WORLD: drops in from above ---------------------------
-   Sits ABOVE every other layer except the header, and carries its own soft
-   dark halo, so it stays legible whatever passes behind it — the wordmark,
-   the figure's head, or plain black.                                       */
 .welcome {
   position: absolute;
   top: var(--welcome-y, 17.5%);
@@ -301,14 +289,13 @@ html.is-booting .hdr { opacity: 0; }
   opacity: 1;
   filter: blur(0);
   transform: translate(-50%, -50%);
-  /* fast, confident entrance that overshoots a touch, then settles */
+
   transition:
     transform .82s cubic-bezier(.14, .86, .22, 1.06),
     opacity .34s ease-out,
     filter .5s var(--ease-out);
 }
 
-/* --- inverted chips ----------------------------------------------------- */
 .chip {
   position: absolute;
   z-index: 2;
@@ -341,7 +328,6 @@ html.is-booting .hdr { opacity: 0; }
   transition: transform .78s var(--ease-out), opacity .3s linear;
 }
 
-/* --- edge arrows -------------------------------------------------------- */
 .arrows {
   position: absolute;
   top: var(--arrow-top, 34.5%);
@@ -370,7 +356,6 @@ html.is-booting .hdr { opacity: 0; }
 }
 .is-arrows .arrows--r i { transition-delay: calc((4 - var(--i)) * .06s); }
 
-/* --- corner dot grids --------------------------------------------------- */
 .grid-dots {
   position: absolute;
   display: grid;
@@ -396,10 +381,6 @@ html.is-booting .hdr { opacity: 0; }
   transition: transform .5s var(--ease-out), opacity .34s linear;
   transition-delay: calc(var(--i) * .022s);
 }
-
-/* ==========================================================================
-   Mobile menu — the burger opens a full-bleed sheet in the artwork's voice
-   ========================================================================== */
 
 .menu {
   position: fixed; inset: 0;
@@ -456,10 +437,6 @@ html.is-booting .hdr { opacity: 0; }
 }
 .is-menu .menu__tag { opacity: 1; }
 
-/* ==========================================================================
-   Boot / loading — deliberately almost invisible
-   ========================================================================== */
-
 .boot {
   position: absolute; inset: 0;
   z-index: 60;
@@ -476,7 +453,7 @@ html.is-booting .hdr { opacity: 0; }
   background: rgba(255, 255, 255, .13);
   overflow: hidden;
   opacity: 0;
-  animation: bootIn .5s ease-out .35s forwards;   /* only if loading is slow */
+  animation: bootIn .5s ease-out .35s forwards;
 }
 .boot__bar i {
   display: block; height: 100%; width: 0%;
@@ -511,10 +488,64 @@ html.is-booting .hdr { opacity: 0; }
 }
 .fallback small { color: var(--dim); letter-spacing: .2em; text-transform: uppercase; }
 
-/* ==========================================================================
-   Small screens — the composition is landscape by nature, so on a phone the
-   furniture thins out rather than piling up on top of the wordmark.
-   ========================================================================== */
+.scroll-cue {
+  position: absolute;
+  bottom: clamp(20px, 4.5vh, 42px);
+  left: 50%;
+  transform: translateX(-50%) translateY(14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: rgba(237, 237, 237, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out), color 0.3s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+html.is-settled .scroll-cue {
+  opacity: 0.9;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.scroll-cue:hover {
+  opacity: 1;
+  color: #fff;
+}
+.scroll-cue__text {
+  font-family: var(--ui);
+  font-size: clamp(8px, 0.65vw, 10px);
+  font-weight: 500;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: inherit;
+}
+.scroll-cue__mouse {
+  width: 17px;
+  height: 28px;
+  border: 1.5px solid currentColor;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.scroll-cue__wheel {
+  width: 2.5px;
+  height: 6px;
+  background: var(--ink-hot);
+  border-radius: 2px;
+  position: absolute;
+  top: 5px;
+  animation: mouseWheel 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes mouseWheel {
+  0% { transform: translateY(0); opacity: 1; }
+  60% { transform: translateY(9px); opacity: 0; }
+  61% { transform: translateY(0); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
 
 @media (max-width: 760px) {
   .hdr { gap: 10px; }

@@ -1,11 +1,3 @@
-// Scene four's canvas: the environment. Two passes -
-//   1  room   the extracted reference plate, staged and re-lit (shaders4.js)
-//   2  post   grain + vignette, shared with scene three
-//
-// The cards and the figure are DOM (buttons and an img over this canvas),
-// placed from the same fitCover() mapping the room pass samples with, so the
-// photograph and the interactive layer can never drift apart.
-
 import { program, unitQuad, texture, upload, bind, loadImage } from '../gl/renderer.js';
 import { V4, F4_ROOM } from '../gl/shaders4.js';
 import { F3_POST } from '../gl/shaders3.js';
@@ -49,7 +41,6 @@ export class Gallery {
     return this.fit;
   }
 
-  /** An ellipse in frame px -> frame fractions for the shader. */
   _ell([cx, cy, rx, ry]) {
     return [cx / FRAME[0], cy / FRAME[1], rx / FRAME[0], ry / FRAME[1]];
   }
@@ -59,8 +50,6 @@ export class Gallery {
     const [W, H] = this.res;
     const f = this.fit;
 
-    // viewport uv (0..1 of the canvas) -> frame fraction: the same cover
-    // mapping the DOM placement uses, expressed as scale + offset
     const sx = this.cssW / (FRAME[0] * f.s);
     const sy = this.cssH / (FRAME[1] * f.s);
     const ox = -f.ox / (FRAME[0] * f.s);

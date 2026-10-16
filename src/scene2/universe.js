@@ -1,19 +1,3 @@
-// Scene two: the creative universe.
-//
-// Draw order, back to front:
-//   1  environment   dark room, red bloom behind the core, reflective floor
-//   2  core ring     concentric arcs, rotating and pulsing
-//   3  ribbon (far)  the segments that pass BEHIND the figure
-//   4  figure        silhouette from the artwork, lit by this scene
-//   5  ribbon (near) the segments in front of him
-//   6  debris + cards, depth sorted back to front
-//   7  embers        additive, with depth-of-field
-//   8  post          grain and vignette
-//
-// Cards are drawn painter-style with the depth buffer off, because everything
-// here is translucent and additive; sorting by w each frame is cheap for a
-// dozen quads and avoids the sorting artefacts blending would otherwise give.
-
 import { program, unitQuad, texture, upload, bind, loadImage } from '../gl/renderer.js';
 import {
   V2_FULL, F2_ENV, F2_RING, V2_CARD, F2_CARD, V2_RIBBON, F2_RIBBON,
@@ -32,9 +16,9 @@ const TOOLS = [
 ];
 
 const CORNERS = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
-// the nearest card sits at z=0; anything closer than this passes over the shell
+
 const NEAR_CARD_Z = 0.55;
-const FIGURE_Z = 1.6;      // he stands behind the card shell
+const FIGURE_Z = 1.6;
 const CAM_Z = 8.2;
 const FOV = 0.85;
 
@@ -110,33 +94,21 @@ export class Universe {
     const aspect = W / H;
     perspective(FOV, aspect, 0.1, 100, this.proj);
 
-    // The composition is re-solved for the actual viewport rather than scaled:
-    // on a narrow screen the shell is pulled in and flattened so the cards stay
-    // on stage instead of drifting off the sides.
-    // Portrait is a genuine recomposition, not the desktop frame scaled down.
-    // The reference is a landscape poster: mapped straight onto a tall screen
-    // its cards collapse toward the vertical middle, which is exactly where the
-    // figure stands. So on a phone the shell is spread wider and taller, the
-    // cards shrink, and the figure steps back to leave the centre clear.
     const narrow = w < 760;
     const tall = aspect < 1.0;
     layoutCards(this.cards, aspect, FOV, CAM_Z, {
       spread: tall ? 1.05 : (aspect < 1.5 ? 0.90 : 1),
-      // enough vertical stretch to open the composition, not so much that the
-      // top and bottom cards leave the frame
+
       lift: tall ? 1.15 : 1,
-      // shrunk only enough to stop the shell colliding with the figure; any
-      // smaller and the wordmarks stop being readable on a phone, which
-      // defeats the point of the section
+
       sizeMul: tall ? 0.95 : (narrow ? 0.9 : 1),
     });
     this.fig = layoutFigure(aspect, FOV, CAM_Z,
       tall ? 0.36 : 0.60, tall ? 0.605 : 0.60, tall ? 0.50 : 0.62);
-    // the ring is measured against the SHORTER edge, or it overflows a phone
+
     this.ringScale = tall ? 0.60 : 1.0;
   }
 
-  /** Screen-space hit test, using each card's projected quad. */
   pick(cx, cy) {
     const nx = (cx / this.cssW) * 2 - 1;
     const ny = 1 - (cy / this.cssH) * 2;
@@ -166,8 +138,6 @@ export class Universe {
     const gate = s.float;
     const ptr = { x: p.x * gate, y: p.y * gate };
 
-    // scrolling dollies the camera through the room; the sequence itself is
-    // time-based so its choreography cannot be scrubbed out of shape
     this.dolly = damp(this.dolly, scroll * 1.5, 4.0, dt);
 
     const view = new Float32Array([
@@ -184,7 +154,6 @@ export class Universe {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(this.quad);
 
-    // where is the stroke's head on screen? the environment blushes around it
     this.ribbon.update(t, 0.105 + 0.028 * Math.sin(t * 0.9),
       Math.max(s.ribbonDraw, 0.001),
       Math.min(1, s.ribbonDraw * 2.2));
@@ -193,7 +162,6 @@ export class Universe {
     const headScr = [(hndc[0] + 1) * 0.5, (1 - hndc[1]) * 0.5,
       s.ribbonLife * 0.9];
 
-    // ---- 1 environment ----------------------------------------------------
     {
       const pr = this.progs.env;
       gl.useProgram(pr.p);
@@ -208,7 +176,6 @@ export class Universe {
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
-    // ---- 2 core ring (additive) -------------------------------------------
     gl.blendFunc(gl.ONE, gl.ONE);
     {
       const pr = this.progs.ring;
@@ -224,10 +191,6 @@ export class Universe {
     }
     gl.bindVertexArray(null);
 
-    // ---- 3 / 5 ribbon ------------------------------------------------------
-    // One strip (already rebuilt above), drawn in depth bands: the trail
-    // weaves through the room, so its behind-the-figure and in-front-of-the-
-    // cards stretches interleave.
     const drawRibbon = (zMin, zMax) => {
       const pr = this.progs.ribbon;
       gl.useProgram(pr.p);
@@ -237,10 +200,9 @@ export class Universe {
       gl.uniform2f(pr.u.uZBand, zMin, zMax);
       this.ribbon.draw();
     };
-    // far half: everything beyond the figure
+
     drawRibbon(-99, this.fig.z);
 
-    // ---- 4 figure ----------------------------------------------------------
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     {
       const pr = this.progs.figure;
@@ -264,12 +226,10 @@ export class Universe {
       gl.bindVertexArray(null);
     }
 
-    // between the figure and the card shell
     gl.blendFunc(gl.ONE, gl.ONE);
     drawRibbon(this.fig.z, NEAR_CARD_Z);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-    // ---- 6 debris + cards, sorted far to near ------------------------------
     gl.bindVertexArray(this.quad);
     const items = [];
     for (const d of this.debris) {
@@ -317,7 +277,7 @@ export class Universe {
       gl.uniform1i(pr.u.uGrain, bind(gl, this.tex.grain, 1));
 
       const cardAspect = pose.scale[0] / pose.scale[1];
-      // fit the logo inside the face with padding, preserving its aspect
+
       const pad = 0.70;
       const la = lg ? lg.aspect : 1;
       let lw = pad;
@@ -333,8 +293,6 @@ export class Universe {
       gl.uniform2f(pr.u.uLight, -pose.pos[0] * 0.5, -pose.pos[1] * 0.5 + 0.4);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-      // Cache the projected quad for hit testing. The corners are +/-1 in
-      // MODEL space - compose() already baked the card's size into the matrix.
       let x0 = 9, x1 = -9, y0 = 9, y1 = -9;
       for (const [sx, sy] of CORNERS) {
         const [px, py] = projectPoint(this.mvpTmp, sx, sy, 0);
@@ -345,14 +303,10 @@ export class Universe {
     }
     gl.bindVertexArray(null);
 
-    // ---- 6b the stroke's nearest passes, OVER the cards --------------------
-    // in the reference the line regularly crosses in front of the card shell;
-    // clipping it behind them is what made the first attempt read as static
     gl.blendFunc(gl.ONE, gl.ONE);
     drawRibbon(NEAR_CARD_Z, 99);
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
 
-    // ---- 7 embers ----------------------------------------------------------
     gl.blendFunc(gl.ONE, gl.ONE);
     {
       const pr = this.progs.spark;
@@ -368,7 +322,6 @@ export class Universe {
       this.sparks.draw(Math.round(this.sparks.count * this.quality));
     }
 
-    // ---- 8 post ------------------------------------------------------------
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.bindVertexArray(this.quad);
     {

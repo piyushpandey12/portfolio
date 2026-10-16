@@ -6,7 +6,6 @@
 <title>PIYUSH PANDEY — Software Engineer · AI/ML Developer · Problem Solver</title>
 <meta name="description" content="Portfolio of Piyush Pandey — Computer Science Engineering student, Software Engineer and AI/ML Developer. 5-Star HackerRank in C++, 250+ DSA problems solved.">
 <meta name="theme-color" content="#000000">
-
 <link rel="preload" href="public/fonts/anton-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="public/fonts/oswald-500.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="public/fonts/oswald-700.woff2" as="font" type="font/woff2" crossorigin>
@@ -18,28 +17,19 @@
 <link rel="stylesheet" href="src/styles/resume-sections.css">
 </head>
 <body>
-
-<!-- Accessible heading for search engines and assistive technology -->
 <h1 class="sr-only">PIYUSH PANDEY — Software Engineer, AI/ML Developer, Problem Solver. Welcome to my world.</h1>
-
-<!-- ------------------------------------------------------------------ -->
-<!-- Persistent Fixed Header Across Entire Experience -->
 <header class="hdr" id="hdr">
   <svg class="hdr__rule" id="hdrRule" aria-hidden="true" preserveAspectRatio="none">
     <polyline id="hdrRulePath" fill="none" stroke="currentColor" stroke-width="1.25"
               vector-effect="non-scaling-stroke"/>
   </svg>
-
   <a class="hdr__mark" href="#home" aria-label="Piyush Pandey, home" data-nav>
     <span class="mark-word">PIYUSH</span>
   </a>
-
   <span class="hdr__div" aria-hidden="true"></span>
-
   <p class="hdr__roles">
     <span>Software Engineer</span><span>AI/ML</span><span>Problem Solver</span>
   </p>
-
   <nav class="hdr__nav" aria-label="Primary">
     <ul>
       <li><a href="#home" class="is-active" data-nav>Home</a></li>
@@ -50,19 +40,15 @@
       <li><a href="#contact" data-nav>Contact</a></li>
     </ul>
   </nav>
-
   <div class="hdr__meta">
     <span class="hdr__metaLabel">Portfolio — MMXXVI</span>
     <span class="hdr__pips" aria-hidden="true"><i></i><i></i><i></i></span>
   </div>
-
   <button class="hdr__burger" id="burger" aria-expanded="false" aria-controls="menu">
     <span aria-hidden="true"></span><span aria-hidden="true"></span>
     <span class="sr-only">Menu</span>
   </button>
 </header>
-
-<!-- ------------------------------------------------------------------ -->
 <nav class="menu" id="menu" aria-label="Primary, expanded" hidden>
   <ul>
     <li><a href="#home" class="is-active" data-nav>Home</a></li>
@@ -74,34 +60,32 @@
   </ul>
   <p class="menu__tag">••• Welcome to my world •••</p>
 </nav>
-
 <div class="stage-wrap">
   <canvas id="stage" aria-hidden="true"></canvas>
-
-  <!-- ------------------------------------------------------------------ -->
   <div class="furniture" aria-hidden="true">
     <p class="welcome" id="welcome">
       <b class="welcome__dots">•••</b>
       <span class="welcome__text">Welcome to my world</span>
       <b class="welcome__dots">•••</b>
     </p>
-
     <p class="chip chip--artist" id="chipArtist"><span>•Piyush Pandey•</span></p>
     <p class="chip chip--legend" id="chipLegend"><span>•5★ HackerRank C++•</span></p>
-
     <div class="arrows arrows--l" id="arrowsL"></div>
     <div class="arrows arrows--r" id="arrowsR"></div>
     <div class="grid-dots grid-dots--br" id="dotsBR"></div>
+    <a href="#universe" class="scroll-cue" id="scrollCue" data-nav aria-label="Scroll to explore">
+      <span class="scroll-cue__text">Scroll to explore</span>
+      <span class="scroll-cue__mouse">
+        <span class="scroll-cue__wheel"></span>
+      </span>
+    </a>
   </div>
-
-  <!-- ------------------------------------------------------------------ -->
   <div class="boot" id="boot">
     <div class="boot__bar"><i id="bootFill"></i></div>
     <button class="boot__enter" id="bootEnter" hidden>
       <span>Enter</span>
     </button>
   </div>
-
   <noscript>
     <div class="fallback">
       <p>PIYUSH</p>
@@ -109,15 +93,9 @@
     </div>
   </noscript>
 </div>
-
 <div id="home"></div>
-
 <main class="flow">
-  <!-- the hero above is position:fixed, so this reserves its scroll height -->
   <div class="hero-spacer" aria-hidden="true"></div>
-
-  <!-- ==================================================================== -->
-  <!-- Scene 02: The Tech & AI Universe -->
   <section class="universe" id="universe" aria-labelledby="uniTitle">
     <header class="universe__title" id="uniTitle">
       <p class="universe__over">Scene 02</p>
@@ -135,51 +113,52 @@
     </video>
     <div class="universe__veil" id="uniVeil" aria-hidden="true"></div>
   </section>
-
-  <!-- ==================================================================== -->
-  <!-- Scene 03: A Journey Through Time -->
   <section class="chrono" id="chrono" aria-labelledby="chronoTitle">
     <div class="chrono__pin">
       <canvas id="chronoStage" aria-hidden="true"></canvas>
-
       <h2 class="chrono__title" id="chronoTitle">
         <span>A</span><span>Journey</span><span>Through</span><span>Time</span>
       </h2>
-      <p class="chrono__rail" aria-hidden="true">
-        <i></i>
-        <span>Logic</span><span>Algorithms</span><span>Systems</span>
-        <span>Projects</span><span>AI</span>
-        <i></i>
-      </p>
-
-      <p class="chrono__hint" aria-hidden="true">
-        Move<br>to travel<br>through time<i></i>
-      </p>
-      <p class="chrono__note chrono__note--bl" aria-hidden="true">
-        Code<br>& Logic<br>a brighter<br>tomorrow
-      </p>
-      <p class="chrono__note chrono__note--br" aria-hidden="true">
-        Still<br>engineering<br>what's<br>next<i></i>
-      </p>
-
+      <div class="chrono__rail" aria-hidden="true">
+        <i class="chrono__dash"></i>
+        <span>Ideas</span><span>Experiences</span><span>People</span>
+        <span>Projects</span><span>Me</span>
+        <i class="chrono__dash"></i>
+      </div>
+      <div class="chrono__hint" aria-hidden="true">
+        <span>Click</span>
+        <span>A Year</span>
+        <span>To Explore</span>
+        <i class="chrono__dash"></i>
+      </div>
+      <div class="chrono__note chrono__note--bl" aria-hidden="true">
+        <span>Same</span>
+        <span>Curiosity</span>
+        <span>A Brighter</span>
+        <span>Tomorrow</span>
+        <i class="chrono__dash"></i>
+      </div>
+      <div class="chrono__note chrono__note--br" aria-hidden="true">
+        <span class="chrono__bracket"></span>
+        <div class="chrono__note-lines">
+          <span>Still</span>
+          <span>Designing</span>
+          <span>What's</span>
+          <span>Next</span>
+        </div>
+      </div>
       <div class="chrono__deck" id="chronoDeck"></div>
-
       <canvas id="chronoFront" aria-hidden="true"></canvas>
     </div>
   </section>
-
-  <!-- ==================================================================== -->
-  <!-- Scene 04: Project Amphitheatre -->
   <section class="gallery" id="gallery" aria-labelledby="galleryTitle">
     <div class="gallery__pin">
       <canvas id="galleryStage" aria-hidden="true"></canvas>
-
       <div class="gallery__world">
         <div class="gallery__deck" id="galleryDeck"></div>
         <img class="gallery__person" id="galleryPerson"
              src="public/projects/person.png" alt="" draggable="false">
       </div>
-
       <h2 class="g-label g-label--projects" id="galleryTitle">Projects</h2>
       <p class="g-label g-label--ideas" aria-hidden="true">
         Code<br>Algorithms<br>Intelligent AI<br><b>Real Impact</b>
@@ -196,9 +175,6 @@
       <span class="g-label g-label--num" id="galleryNum" aria-hidden="true">01</span>
     </div>
   </section>
-
-  <!-- ==================================================================== -->
-  <!-- Scene 05: Experience, Education & Credentials -->
   <section class="credentials-sec" id="about" aria-labelledby="aboutTitle">
     <div class="sec-wrap">
       <header class="sec-header">
@@ -206,8 +182,6 @@
         <h2 class="sec-title" id="aboutTitle">Experience & Credentials</h2>
         <p class="sec-sub">Computer Science Engineer · Amritsar, Punjab, India</p>
       </header>
-
-      <!-- Executive Profile Summary -->
       <div class="summary-card">
         <p>
           <strong>Computer Science Engineering student</strong> with strong foundations in
@@ -228,9 +202,7 @@
           <span class="pill">AI/ML Predictive Modeling</span>
         </div>
       </div>
-
       <div class="creds-grid">
-        <!-- Internship & Training -->
         <div class="mod-box col-7">
           <h3 class="mod-title">
             <span>Internship & Training</span>
@@ -253,7 +225,6 @@
                 <li>Strengthened knowledge of model training, data analysis and AI-driven application development.</li>
               </ul>
             </div>
-
             <div class="exp-item">
               <h4 class="exp-role">Prompt Engineering & AI Automation Bootcamp</h4>
               <div class="exp-meta">
@@ -272,8 +243,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Technical Skills Matrix -->
         <div class="mod-box col-5">
           <h3 class="mod-title">
             <span>Technical Skills Matrix</span>
@@ -291,7 +260,6 @@
                 <span class="skill-tag">Java</span>
               </div>
             </div>
-
             <div class="skill-group">
               <h4>AI Tools & Automation</h4>
               <div class="skill-tags">
@@ -306,7 +274,6 @@
                 <span class="skill-tag">AI Agents</span>
               </div>
             </div>
-
             <div class="skill-group">
               <h4>Databases & Big Data</h4>
               <div class="skill-tags">
@@ -316,7 +283,6 @@
                 <span class="skill-tag">Apache Pig</span>
               </div>
             </div>
-
             <div class="skill-group">
               <h4>Developer Tools & CS Fundamentals</h4>
               <div class="skill-tags">
@@ -332,8 +298,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Education Pathway -->
         <div class="mod-box col-6">
           <h3 class="mod-title">
             <span>Education</span>
@@ -357,8 +321,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Certifications & Coding Profiles -->
         <div class="mod-box col-6">
           <h3 class="mod-title">
             <span>Certifications & Profiles</span>
@@ -409,8 +371,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Custom GPTs & Leadership -->
         <div class="mod-box col-12">
           <h3 class="mod-title">
             <span>Custom GPTs, Leadership & Languages</span>
@@ -442,9 +402,6 @@
       </div>
     </div>
   </section>
-
-  <!-- ==================================================================== -->
-  <!-- Scene 06: Contact & Direct Connect -->
   <section class="contact-sec" id="contact" aria-labelledby="contactTitle">
     <div class="sec-wrap">
       <header class="sec-header">
@@ -452,9 +409,7 @@
         <h2 class="sec-title" id="contactTitle">Let's Connect</h2>
         <p class="sec-sub">Open for Software Engineering & AI/ML Opportunities</p>
       </header>
-
       <div class="contact-grid">
-        <!-- Direct Contacts -->
         <div class="contact-info-panel">
           <div class="contact-card-direct">
             <a href="mailto:piyushpandey.ssm95@gmail.com" class="contact-method">
@@ -464,7 +419,6 @@
                 <span class="cm-val">piyushpandey.ssm95@gmail.com</span>
               </div>
             </a>
-
             <a href="tel:+916206893468" class="contact-method">
               <div class="cm-icon">✆</div>
               <div class="cm-text">
@@ -472,7 +426,6 @@
                 <span class="cm-val">+91-6206893468</span>
               </div>
             </a>
-
             <div class="contact-method">
               <div class="cm-icon">📍</div>
               <div class="cm-text">
@@ -480,7 +433,6 @@
                 <span class="cm-val">Amritsar, Punjab, India</span>
               </div>
             </div>
-
             <div class="contact-method">
               <div class="cm-icon">💼</div>
               <div class="cm-text">
@@ -490,8 +442,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Direct Message Form -->
         <form class="contact-form" id="contactForm">
           <div class="form-group">
             <label for="cName">Your Name</label>
@@ -511,19 +461,13 @@
       </div>
     </div>
   </section>
-
 </main>
-
-<!-- ====================================================================== -->
-<!-- Finale & Closing -->
 <footer class="fin" id="fin" aria-label="Closing">
   <div class="fin__pin">
     <h2 class="sr-only">Piyush Pandey</h2>
-
     <div class="fin__stage1" id="finStage1">
       <canvas id="finBack" aria-hidden="true"></canvas>
       <canvas id="finMan" aria-hidden="true"></canvas>
-
       <p class="f-cap f-cap--tl" aria-hidden="true">
         C++<br>Python<br>AI / ML<br>Real Impact
       </p>
@@ -536,13 +480,10 @@
       </p>
       <p class="f-cap f-cap--br" aria-hidden="true">Code<br>Build<br>Automate<br>Scale</p>
     </div>
-
     <div class="fin__dim" id="finDim" aria-hidden="true"></div>
-
     <figure class="fin__frame2" id="finFrame2" aria-hidden="true" hidden>
       <img id="finFrame2Img" alt="" draggable="false" decoding="async">
     </figure>
-
     <div class="fin__bar">
       <a href="#contact" data-nav>Get In Touch</a>
       <nav class="fin__soc" aria-label="Social">
@@ -555,8 +496,6 @@
     </div>
   </div>
 </footer>
-
-<!-- Project Details Modal -->
 <div class="pm-backdrop" id="projectModal" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="pm-modal">
     <button class="pm-close" id="pmClose" aria-label="Close modal">✕</button>
@@ -569,7 +508,6 @@
       <p class="pm-sub" id="pmSub">Python · REST APIs · Intelligent NLP</p>
     </div>
     <ul class="pm-bullets" id="pmBullets">
-      <!-- Injected dynamically -->
     </ul>
     <div class="pm-actions">
       <a href="https://github.com" target="_blank" rel="noopener" class="pm-btn pm-btn--primary">View on GitHub ↗</a>
@@ -577,7 +515,6 @@
     </div>
   </div>
 </div>
-
 <script type="module" src="src/main.js"></script>
 </body>
 </html>

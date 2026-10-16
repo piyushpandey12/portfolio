@@ -1,16 +1,3 @@
-// Scene four's lifecycle: rebuild the reference as living layers, then run
-// the assembly. The environment is canvas (gallery.js); the twelve project
-// cards are DOM buttons wearing sprites cut from the reference itself; the
-// figure is the reference's own pixels, matted. Everything is placed through
-// one fitCover() mapping, so the layers agree to the pixel.
-//
-// Interaction model:
-//   pointer  -> a damped -1..1 pair; the deck yaws a couple of degrees, each
-//               card drifts by its depth (near flanks move most, the far row
-//               least), the figure counters gently, the plate slides opposite
-//   hover    -> the card lifts toward the camera; its siblings ease back
-//   scroll   -> past the intro, the whole universe dollies subtly toward you
-
 import { createGL } from '../gl/renderer.js';
 import { Gallery } from './gallery.js';
 import { CARDS, PERSON, PORTRAIT, fitCover } from './layout4.js';
@@ -37,8 +24,6 @@ export async function initGallery() {
   const labels = [...section.querySelectorAll('.g-label')];
   const num = document.getElementById('galleryNum');
 
-  // ---- cards ---------------------------------------------------------------
-  // far row surfaces first: entrance order is depth-sorted, back to front
   const order = CARDS.map((c, i) => i)
     .sort((a, b) => CARDS[b].depth - CARDS[a].depth);
   const rank = [];
@@ -53,7 +38,7 @@ export async function initGallery() {
     el.style.setProperty('--tint',
       `rgba(${c.tint.map((v, k) => k < 3 ? Math.round(v * 255) : v)}, 0.5)`);
     el.style.zIndex = String(10 + Math.round((1 - c.depth) * 20));
-    el.style.setProperty('--i', String(i));   // float dephasing
+    el.style.setProperty('--i', String(i));
     el.innerHTML = `<span class="g-card__in">`
       + `<img src="public/projects/${c.id}.png" alt="" `
       + `draggable="false" loading="eager" decoding="async">`
@@ -72,7 +57,6 @@ export async function initGallery() {
   });
   person.style.zIndex = '34';
 
-  // ---- placement -----------------------------------------------------------
   let portrait = false;
   function place() {
     const w = window.innerWidth;
@@ -101,17 +85,12 @@ export async function initGallery() {
       }
     }
 
-    // the red 01 belongs to the composition, not the viewport corners: it
-    // rides just over the hero screen's top-left, where the reference puts it
     if (num && !portrait) {
       num.style.left = `${588 * f.s + f.ox}px`;
       num.style.top = `${46 * f.s + f.oy}px`;
       num.style.fontSize = `${Math.max(10, 15 * f.s)}px`;
     }
 
-    // The figure keeps the plate's own cover mapping in EVERY orientation:
-    // he must sit exactly over the hole the extractor filled behind him, or
-    // the fill's soft edge reads as a box around his silhouette.
     person.style.width = `${PERSON.w * f.s}px`;
     person.style.left = `${PERSON.x * f.s + f.ox}px`;
     person.style.top = `${PERSON.y * f.s + f.oy}px`;
@@ -123,7 +102,6 @@ export async function initGallery() {
     resizeId = setTimeout(place, 140);
   });
 
-  // ---- pointer -------------------------------------------------------------
   const ptr = { tx: 0, ty: 0, x: 0, y: 0, inside: false };
   section.addEventListener('pointermove', (e) => {
     const r = section.getBoundingClientRect();
@@ -133,7 +111,6 @@ export async function initGallery() {
   }, { passive: true });
   section.addEventListener('pointerleave', () => { ptr.inside = false; });
 
-  // hover: the deck learns something is hot so siblings can ease back
   deck.addEventListener('pointerover', (e) => {
     if (e.target.closest('.g-card')) deck.classList.add('is-hot');
   });
@@ -143,7 +120,6 @@ export async function initGallery() {
     }
   });
 
-  // ---- the clock -----------------------------------------------------------
   const state = { started: 0, running: false, visible: false, raf: 0, last: 0, set: false };
 
   const frame = (now) => {
@@ -153,7 +129,6 @@ export async function initGallery() {
     const t = reduced ? T4.live + 2 : (now - state.started) / 1000;
     const s = sample4(t);
 
-    // scroll dolly: progress of the pin through its extra scroll room
     const r = section.getBoundingClientRect();
     const room = section.offsetHeight - window.innerHeight;
     const sp = room > 4 ? Math.min(1, Math.max(0, -r.top / room)) : 0;
@@ -165,7 +140,6 @@ export async function initGallery() {
     gallery.dolly = sp;
     gallery.render(t, s);
 
-    // the deck yaws with the pointer - the "looking around the room" degree
     const live = s.live ? 1 : 0;
     deck.style.transform =
       `rotateY(${(ptr.x * 2.1 * live).toFixed(3)}deg) `
@@ -188,8 +162,7 @@ export async function initGallery() {
         + `scale(${(0.84 + e * 0.16).toFixed(4)})`;
       const op = Math.min(1, Math.max(0, e * 2.4));
       el.style.opacity = op.toFixed(3);
-      // blur -> sharp is part of the pop; cleared once settled so hover and
-      // floating never pay for a live filter
+
       if (e < 0.995) {
         el.style.filter = `blur(${((1 - Math.min(1, e)) * 7).toFixed(2)}px)`;
       } else if (el.style.filter) {
@@ -197,7 +170,6 @@ export async function initGallery() {
       }
     }
 
-    // the figure: rises into the light after his gallery is mostly up
     const pe = s.person;
     person.style.transform =
       `translate3d(${(ptr.x * -9 * live).toFixed(2)}px, `
@@ -237,7 +209,6 @@ export async function initGallery() {
 
   labels.forEach((el, i) => el.style.setProperty('--li', String(i)));
 
-  // review hook: canvas only (the cards are DOM; screenshot the pane for those)
   window.__shot4 = async (name = 'gallery', at = null) => {
     const t = at !== null ? at : (performance.now() - state.started) / 1000;
     gallery.render(t, sample4(t));

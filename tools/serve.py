@@ -26,7 +26,6 @@ TYPES = {
     ".jpg": "image/jpeg",
 }
 
-
 class Handler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         """POST /__shot writes a base64 PNG to disk.
@@ -68,11 +67,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if " 200 " not in msg and " 206 " not in msg:
             sys.stderr.write("%s\n" % msg)
 
-
 class Server(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
     daemon_threads = True
-
 
 if __name__ == "__main__":
     with Server(("127.0.0.1", PORT), Handler) as httpd:

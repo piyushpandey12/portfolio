@@ -17,23 +17,16 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from matte import process, get_ffmpeg_bin  # noqa: E402
+from matte import process, get_ffmpeg_bin
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "assets_src")
 MEDIA = os.path.join(ROOT, "public", "media")
 TEX = os.path.join(ROOT, "public", "tex")
 
-# name, source file, preset, output size, frame range
-# The walking man is the only clip that appears on the site. The other two
-# sources stay in assets_src/ and their presets stay in matte.py, so re-enabling
-# either is a one-line change plus a rebuild.
 CLIPS = [
     ("hero", "v1.mp4", "v1", 720, 1280, 0, 240),
-    # ("letter_g", "v2.mp4", "v2", 540, 960, 0, 240),
-    # ("letter_h", "v3.mov", "v3", 540, 960, 0, 190),
 ]
-
 
 def poster(packed_mp4, out_jpg, w):
     """First frame of the colour half, over black - used as the video poster."""
@@ -42,7 +35,6 @@ def poster(packed_mp4, out_jpg, w):
     cap.release()
     if ok:
         cv2.imwrite(out_jpg, fr[:, :w], [cv2.IMWRITE_JPEG_QUALITY, 82])
-
 
 def verify(packed_mp4, w):
     """Decode the encode back and confirm the matte survived the round trip."""
@@ -56,7 +48,6 @@ def verify(packed_mp4, w):
     return ("matte min %.3f max %.3f | opaque %.1f%% clear %.1f%% soft %.1f%%"
             % (m.min(), m.max(), (m > 0.95).mean() * 100,
                (m < 0.05).mean() * 100, ((m >= 0.05) & (m <= 0.95)).mean() * 100))
-
 
 def build_grunge():
     """Lift the distressed surface out of the supplied PIYUSH artwork.
@@ -84,7 +75,6 @@ def build_grunge():
         return
 
     g = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY).astype(np.float32)
-    # high-pass: drop the broad shading, keep scratches, speckle and abrasion
     hp = g - cv2.GaussianBlur(g, (0, 0), 26.0) + 128.0
     hp = np.clip(hp, 0, 255).astype(np.uint8)
     hp = cv2.inpaint(hp, (1 - inside).astype(np.uint8), 6, cv2.INPAINT_TELEA)
@@ -92,28 +82,19 @@ def build_grunge():
     t = hp.astype(np.float32) / 255.0
     tile = quilt(t, inside, size=512, patch=64, seed=5)
 
-    # Second high-pass, this time wrap-aware. The reference paint is scratched,
-    # not spattered: its detail is hairline and linear. Without this the surviving
-    # low frequencies read as dark blobs across the wordmark, which is a different
-    # material altogether.
     tile = tile - wrap_blur(tile, 7.0) + 0.5
 
-    # normalise to a calm mid-grey: this multiplies the ink, so a wide histogram
-    # here turns the wordmark into stripes rather than worn paint. A robust
-    # spread is used so a few extreme scratches cannot flatten everything else.
     lo, hi = np.percentile(tile, [16, 84])
     tile = (tile - np.median(tile)) / max((hi - lo) * 0.5, 1e-6)
     tile = np.clip(0.5 + tile * 0.155, 0.0, 1.0)
     os.makedirs(TEX, exist_ok=True)
     cv2.imwrite(os.path.join(TEX, "grunge.png"), (tile * 255).astype(np.uint8))
 
-
 def wrap_blur(img, sigma):
     """Gaussian blur that respects tiling, so filtering keeps the tile seamless."""
     k = int(np.ceil(sigma * 3))
     p = np.pad(img, k, mode="wrap")
     return cv2.GaussianBlur(p, (0, 0), sigma)[k:-k, k:-k]
-
 
 def quilt(src, mask, size=512, patch=64, seed=0, placements=420):
     """Seamless tile synthesised from patches taken INSIDE the letterforms.
@@ -125,13 +106,9 @@ def quilt(src, mask, size=512, patch=64, seed=0, placements=420):
     real scratches and speckle but none of the structure - and tiles perfectly
     because every write wraps.
     """
-    # The strokes are only 60-160px wide, so the sampling window has to be small
-    # enough to fit inside one. Erode by less than the narrowest stem or nothing
-    # qualifies and the whole synthesis silently degrades.
     rng = np.random.default_rng(seed)
     safe = cv2.erode(mask.astype(np.uint8),
                      np.ones((9, 9), np.uint8)).astype(bool)
-    # integral image -> O(1) test for "is this whole window inside a stroke"
     ii = cv2.integral(safe.astype(np.float32))
     h, w = src.shape
     spots = []
@@ -145,14 +122,10 @@ def quilt(src, mask, size=512, patch=64, seed=0, placements=420):
         if len(spots) >= placements * 3:
             break
     if len(spots) < 12:
-        # refusing quietly here would ship a stretched, non-tiling crop that
-        # looks like wood grain across the wordmark
         raise RuntimeError(
             "grunge synthesis: only %d clean %dpx patches inside the letterforms;"
             " reduce `patch` or the erosion" % (len(spots), patch))
 
-    # a flat-topped taper: a pure Hann leaves the weight sum near zero wherever
-    # only patch edges land, and dividing by that blows those pixels out
     win = np.hanning(patch) ** 0.4
     win = np.outer(win, win).astype(np.float32) + 0.04
 
@@ -174,7 +147,6 @@ def quilt(src, mask, size=512, patch=64, seed=0, placements=420):
         np.add.at(wsum, (ty, tx), win)
     return acc / np.maximum(wsum, wsum.mean() * 0.25)
 
-
 def build_grain():
     """Monochrome blue-noise-ish tile, scrolled per frame for film grain."""
     rng = np.random.default_rng(11)
@@ -183,7 +155,6 @@ def build_grain():
     n = np.clip((n - n.min()) / (n.max() - n.min()), 0, 1)
     os.makedirs(TEX, exist_ok=True)
     cv2.imwrite(os.path.join(TEX, "grain.png"), (n * 255).astype(np.uint8))
-
 
 def stage_universe_film():
     """Scene two plays the supplied reference film directly. The video stream
@@ -199,7 +170,6 @@ def stage_universe_film():
                     "-frames:v", "1", "-q:v", "4",
                     os.path.join(MEDIA, "universe.jpg")], check=True)
     print("  universe film staged (%d KB)" % (os.path.getsize(dst) // 1024))
-
 
 def main():
     os.makedirs(MEDIA, exist_ok=True)
@@ -227,7 +197,6 @@ def main():
     with open(os.path.join(MEDIA, "manifest.json"), "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
     print("done")
-
 
 if __name__ == "__main__":
     main()

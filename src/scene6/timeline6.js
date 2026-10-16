@@ -1,9 +1,3 @@
-// The closing shot's beats, in seconds from the footer's first sight.
-//
-//   black -> the red furnace breathes in -> smoke -> the title card rises,
-//   dissolves sharp -> the man appears in front, smoking -> the editorial
-//   captions settle -> the functional footer row -> stillness, with a pulse.
-
 const T = {
   glow: [0.25, 1.8],
   fog: [0.8, 2.35],

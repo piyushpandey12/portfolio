@@ -1,21 +1,5 @@
-// Renders PIYUSH into a single coverage texture and reports the ink rectangle
-// of every individual letter.
-//
-// Why a texture and not DOM text: the two people who live inside the G and the H
-// have to be clipped by the real letterforms. Sharing one atlas means the clip
-// mask and the visible letter are the same pixels, so they can never drift apart
-// by even a subpixel, at any size or device pixel ratio.
-//
-// The reference artwork is set in a compressed heavy grotesque. Anton is the
-// closest widely available face but is naturally wider, so a single horizontal
-// scale is solved for at runtime to hit the reference's measured
-// word-width : cap-height ratio. One uniform scale keeps the letterforms
-// consistent with each other; per-letter fitting would distort the I into a slab
-// while squeezing the E, which is what makes lettering look counterfeit.
-
 const TEXT = 'PIYUSH';
 
-// ink width / cap height ratio tailored for Anton typography
 export const TARGET_RATIO = 2.78;
 
 function ctx2d(w, h) {
@@ -36,24 +20,15 @@ function metricsFor(ctx, ch) {
   };
 }
 
-/**
- * @param {number} capHeightPx desired cap height in device pixels
- * @param {number} maxTexture  gl.MAX_TEXTURE_SIZE
- */
 export function buildWord(capHeightPx, maxTexture = 4096) {
   const probe = 400;
   let c = ctx2d(8, 8);
   c.font = `${probe}px Anton, "Arial Narrow", Impact, sans-serif`;
   c.textBaseline = 'alphabetic';
 
-  // solve font size so the cap height lands exactly where we want it
   const capAt = metricsFor(c, 'H').ascent || probe * 0.72;
   let size = (capHeightPx / capAt) * probe;
 
-  // Natural ink extent at that size, with a touch of negative tracking to match
-  // the tightly packed reference setting. Ink extent is NOT the sum of advances:
-  // side bearings and overhangs mean the painted edges sit inside (or outside)
-  // the advance box, so the pen is walked and the real painted extremes taken.
   c.font = `${size}px Anton, "Arial Narrow", Impact, sans-serif`;
   const tracking = -0.012 * capHeightPx;
   const per = [...TEXT].map((ch) => metricsFor(c, ch));
@@ -72,7 +47,6 @@ export function buildWord(capHeightPx, maxTexture = 4096) {
 
   const scaleX = (TARGET_RATIO * capHeightPx) / naturalInk;
 
-  // lay the letters out in scaled space
   const pad = Math.ceil(capHeightPx * 0.06);
   const raw = walk.map((r) => ({
     char: r.char,
@@ -88,7 +62,6 @@ export function buildWord(capHeightPx, maxTexture = 4096) {
   let W = Math.ceil(inkR - inkL) + pad * 2;
   let H = Math.ceil(capHeightPx + descent) + pad * 2;
 
-  // stay inside the GPU limit; the whole composition scales down together
   let fit = 1;
   if (W > maxTexture) fit = maxTexture / W;
   if (H * fit > maxTexture) fit = maxTexture / H;
@@ -124,7 +97,7 @@ export function buildWord(capHeightPx, maxTexture = 4096) {
     height: H,
     pad,
     fit,
-    // ink box of the whole word inside the canvas
+
     ink: { x: pad, y: pad, w: (inkR - inkL) * fit, h: capHeightPx * fit },
     letters: letters.map((l) => ({
       ...l,
@@ -145,5 +118,5 @@ export async function fontsReady() {
       document.fonts.load('400 40px Oswald'),
     ]);
     await document.fonts.ready;
-  } catch { /* fall back to the stack in the font shorthand */ }
+  } catch {  }
 }

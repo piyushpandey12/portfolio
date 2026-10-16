@@ -1,12 +1,10 @@
-# One-clip encoder for the section-5 walking man - the full build_media run
-# re-mattes the hero for minutes, so the cert clip gets its own entry point.
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from matte import process           # noqa: E402
-from build_media import MEDIA, poster, verify   # noqa: E402
+from matte import process
+from build_media import MEDIA, poster, verify
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 SRC = os.path.join(ROOT, "Man_walking_and_smoking_cigarette_202609051235.mp4")

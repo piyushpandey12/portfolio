@@ -7,8 +7,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from matte import PRESETS, frame_alpha, despill  # noqa: E402
-
+from matte import PRESETS, frame_alpha, despill
 
 def run(src, preset, frames, out, overrides=None, crop=None, tile=(300, 533)):
     cfg = dict(PRESETS[preset])
@@ -37,7 +36,6 @@ def run(src, preset, frames, out, overrides=None, crop=None, tile=(300, 533)):
     cap.release()
     cv2.imwrite(out, np.concatenate(tiles, 1).astype(np.uint8))
     print(out, len(tiles), "tiles")
-
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()

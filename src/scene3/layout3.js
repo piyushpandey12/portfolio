@@ -1,48 +1,36 @@
-// Geometry for the time machine.
-//
-// Every number here was measured off the supplied reference. The six timeline
-// nodes were located by detecting their glow, and a least-squares circle fit
-// through them closed to within +/-3px — so the timeline really is a circular
-// arc, and it is rebuilt here as one rather than approximated by a spline
-// through hand-placed points. That matters for the interaction: the cursor is
-// projected onto this same arc to decide which year the visitor is reaching
-// for, so the maths the scene is drawn with and the maths it is read with are
-// the same maths.
-
 export const YEARS = [
   {
     year: 2021,
-    key: 'Foundations',
-    lines: ['Programming Roots', 'Logic & Math', 'Code Exploration'],
+    key: 'Beginning',
+    lines: ['New City', 'New Chapter', 'Bigger Dreams'],
   },
   {
     year: 2022,
-    key: 'C++ & Algorithms',
-    lines: ['Mastered C++ & OOP', 'Data Structures', 'Algorithmic Thinking'],
+    key: 'Exploration',
+    lines: ['Learned Design', 'Found Direction'],
   },
   {
     year: 2023,
-    key: 'B.Tech Milestone',
-    lines: ['B.Tech CSE Amritsar', 'Class XII BSEB Bihar', 'Core CS Fundamentals'],
+    key: 'Practice',
+    lines: ['Built Skills', 'Made Projects', 'Kept Going'],
   },
   {
     year: 2024,
-    key: 'Systems & DSA',
-    lines: ['Railway Booking (C++)', 'Particle Simulations', '250+ Coding Problems'],
+    key: 'Growth',
+    lines: ['Real Projects', 'Real People', 'Real Learning'],
   },
   {
     year: 2025,
-    key: 'AI & Full-Stack',
-    lines: ['AI Conversational Bot', 'Student DBMS (MySQL)', '5★ HackerRank C++'],
+    key: 'Opportunities',
+    lines: ['Collaborated', 'Solved Problems', 'Stepped Up'],
   },
   {
     year: 2026,
-    key: 'AI/ML & Automation',
-    lines: ['SkillEcted AI/ML Training', 'Prompt Eng & n8n Agents', 'Software Engineering'],
+    key: 'Next Chapter',
+    lines: ['Bigger Goals', 'More Impact', 'Still Designing'],
   },
 ];
 
-// measured in the 1280x720 reference, stored as fractions of the frame
 const REF = {
   nodes: [
     [0.2226, 0.1456],
@@ -52,7 +40,7 @@ const REF = {
     [0.6648, 0.3683],
     [0.8064, 0.3776],
   ],
-  // centre of each card's artwork, and the card's width as a fraction of frame
+
   cards: [
     [0.2047, 0.2875, 0.081],
     [0.3109, 0.3569, 0.088],
@@ -61,36 +49,19 @@ const REF = {
     [0.6906, 0.5083, 0.110],
     [0.8180, 0.5292, 0.124],
   ],
-  pivot: [0.6991, 0.0483],   // the clock's hand pivot
-  // The dial is NOT concentric with the hand in the reference — it is a much
-  // larger circle whose centre sits well above frame, which is why only a
-  // shallow sweep of its rim is ever on screen. Centre offset from the pivot,
-  // radius in height units.
+  pivot: [0.6991, 0.0483],
+
   dial: [0.0, -0.20, 0.47],
-  // Slightly LEFT of true centre, and a step NEARER than the deck: he renders
-  // on the front canvas, over the cards, standing in front of his own journey.
-  // Offset left and set LOW — nearer the viewer than the ring centre — so his
-  // head rises only into the bottom rows of the 2023 card and his shoulders
-  // clear its text block entirely: every card stays readable around him. The
-  // ring system stays centred on the scene regardless.
-  figure: [0.3900, 0.9740, 0.412],  // centre x, feet y, height as frac of frame
-  floor: [0.4900, 0.9550],   // centre of the ring system, at his feet
+
+  figure: [0.4742, 0.9780, 0.440],
+  floor: [0.4742, 0.9550],
 };
 
-/**
- * Fit the reference composition to the current viewport.
- *
- * The poster is 16:9. On a wider screen the composition is anchored by height
- * and allowed to breathe sideways; on a narrower one it is anchored by width so
- * the timeline never runs off the edge. Returning plain pixel coordinates keeps
- * the DOM cards and the WebGL scene reading from one source of truth.
- */
 export function fitScene(w, h) {
   const refAspect = 16 / 9;
   const aspect = w / h;
   const portrait = aspect < 0.95;
 
-  // uniform scale plus an offset, so nothing is ever stretched
   let scale;
   let ox = 0;
   let oy = 0;
@@ -111,11 +82,7 @@ export function fitScene(w, h) {
   let figure;
 
   if (portrait) {
-    // A genuine recomposition, not the landscape frame scaled down. Mapped
-    // straight onto a tall screen the arc collapses into a 60px band and all
-    // six cards land on top of each other. Instead the timeline stands UP: the
-    // years become a vertical rail down the left, and one card at a time holds
-    // the stage beside it.
+
     const railX = w * 0.155;
     const top = h * 0.255;
     const step = h * 0.088;
@@ -142,11 +109,9 @@ export function fitScene(w, h) {
     };
   }
 
-  // circle through the nodes, refit in screen pixels
   const arc = fitCircle(nodes);
   const angles = nodes.map((n) => Math.atan2(n[1] - arc.cy, n[0] - arc.cx));
 
-  // angle from the clock pivot to each year — this is what the hand points at
   const handAngles = nodes.map((n) =>
     Math.atan2(n[1] - pivot[1], n[0] - pivot[0]));
 
@@ -173,7 +138,6 @@ function fitCircle(pts) {
   return { cx, cy, r: Math.sqrt(Math.max(cx * cx + cy * cy - F, 1)) };
 }
 
-/** Normal-equation solve of an over-determined 3-column system. */
 function solve3(A, b) {
   const N = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
   const r = [0, 0, 0];
@@ -183,7 +147,7 @@ function solve3(A, b) {
       for (let j = 0; j < 3; j++) N[i][j] += A[k][i] * A[k][j];
     }
   }
-  // Gaussian elimination with partial pivoting
+
   for (let i = 0; i < 3; i++) {
     let p = i;
     for (let k = i + 1; k < 3; k++) if (Math.abs(N[k][i]) > Math.abs(N[p][i])) p = k;
@@ -205,18 +169,8 @@ function solve3(A, b) {
   return x;
 }
 
-/**
- * Which year is the visitor reaching for?
- *
- * Not raw cursor-x: the timeline is a curve that descends across the frame, so
- * horizontal position alone would pick the wrong year whenever the pointer sits
- * above or below the arc. The cursor is instead projected onto the polyline
- * through the card centres, which yields a CONTINUOUS position along the
- * timeline. The hand reads that continuum (so it moves smoothly and can sit
- * between years), while the cards read its rounded value.
- */
 export function timeAt(layout, px, py) {
-  // portrait reads the vertical rail of nodes; landscape reads the card curve
+
   const pts = layout.portrait
     ? layout.nodes.map((n) => [n[0], n[1]])
     : layout.cards.map((c) => [c.x, c.y]);
@@ -242,7 +196,6 @@ export function timeAt(layout, px, py) {
   return { u: best, dist: Math.sqrt(bestD) };
 }
 
-/** Interpolate an angle list at a fractional index, the short way round. */
 export function angleAt(list, u) {
   const i = Math.max(0, Math.min(list.length - 2, Math.floor(u)));
   const t = Math.max(0, Math.min(1, u - i));

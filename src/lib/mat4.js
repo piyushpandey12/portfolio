@@ -1,9 +1,3 @@
-// Minimal column-major 4x4 matrix math — just what the universe scene needs.
-// Using a real projection matrix (rather than dividing coordinates by hand in
-// JS) means the GPU does perspective-correct interpolation, so a card tilted
-// away from camera has correctly foreshortened artwork instead of a texture
-// that shears across the quad.
-
 export function identity(o = new Float32Array(16)) {
   o.fill(0);
   o[0] = o[5] = o[10] = o[15] = 1;
@@ -35,14 +29,12 @@ export function multiply(a, b, o = new Float32Array(16)) {
   return o;
 }
 
-/** Model matrix for a billboarded-ish card: translate * rotate * scale. */
 export function compose(pos, rot, scale, o = new Float32Array(16)) {
   const [rx, ry, rz] = rot;
   const cx = Math.cos(rx); const sx = Math.sin(rx);
   const cy = Math.cos(ry); const sy = Math.sin(ry);
   const cz = Math.cos(rz); const sz = Math.sin(rz);
 
-  // R = Ry * Rx * Rz
   const m00 = cy * cz + sy * sx * sz;
   const m01 = -cy * sz + sy * sx * cz;
   const m02 = sy * cx;
@@ -61,7 +53,6 @@ export function compose(pos, rot, scale, o = new Float32Array(16)) {
   return o;
 }
 
-/** Project a world point to normalised device coords; returns [x, y, w]. */
 export function projectPoint(mvp, x, y, z) {
   const cx = mvp[0] * x + mvp[4] * y + mvp[8] * z + mvp[12];
   const cy = mvp[1] * x + mvp[5] * y + mvp[9] * z + mvp[13];

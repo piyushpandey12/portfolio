@@ -1,15 +1,3 @@
-/* ==========================================================================
-   The finale — the closing shot.
-   Deep black + dark red + crimson + cream. The furnace canvas sits behind a
-   giant PIYUSH set in real type (Anton, stretched to the reference's
-   ultra-tall poster proportions, wearing the extracted grunge), the man's
-   canvas rides in front of the title, and the editorial captions + the quiet
-   functional row hold the edges.
-   ========================================================================== */
-
-/* Two frames of one closing scene: the pinned stage holds frame 1 (the
-   PIYUSH composition) while the extra scroll room drives frame 2 sliding in
-   from the left over it. */
 .fin {
   position: relative;
   height: 240svh;
@@ -41,7 +29,6 @@
 #finBack { z-index: 1; }
 #finMan { z-index: 3; pointer-events: none; }
 
-/* dims frame 1 as frame 2 advances over it */
 .fin__dim {
   position: absolute;
   inset: 0;
@@ -51,11 +38,6 @@
   pointer-events: none;
 }
 
-/* --------------------------------------------------------------------------
-   Frame 2 — the supplied still, full-bleed, entering from the LEFT under
-   scroll control (boot6 writes its transform). Its leading edge throws a
-   soft shadow onto frame 1, and a grain veil keeps it in the film's stock.
-   -------------------------------------------------------------------------- */
 .fin__frame2 {
   position: absolute;
   inset: 0;
@@ -85,10 +67,6 @@
   mix-blend-mode: overlay;
   pointer-events: none;
 }
-
-/* --------------------------------------------------------------------------
-   Editorial captions — cream letterspaced, red punctuation.
-   -------------------------------------------------------------------------- */
 
 .f-cap {
   display: none !important;
@@ -139,11 +117,6 @@
   right: clamp(24px, 3.6vw, 62px);
 }
 
-/* --------------------------------------------------------------------------
-   The functional row — a real footer, whispering. Sits on the bottom edge
-   without breaking the frame.
-   -------------------------------------------------------------------------- */
-
 .fin__bar {
   position: absolute;
   z-index: 7;
@@ -182,10 +155,6 @@
   gap: 2.4em;
 }
 .fin__c { font-size: inherit; letter-spacing: 0.24em; }
-
-/* --------------------------------------------------------------------------
-   Portrait + fallbacks
-   -------------------------------------------------------------------------- */
 
 .fin.is-portrait .f-cap--tr,
 .fin.is-portrait .f-cap--tl,

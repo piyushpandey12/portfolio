@@ -1,10 +1,3 @@
-// Video playback for the packed-alpha clips.
-//
-// Two things every browser gets wrong if you do not handle them: autoplay can be
-// refused even for muted video, and a loop point on a walking figure snaps hard.
-// The seam is hidden by dissolving the figure into darkness across the wrap,
-// which reads as atmosphere rather than as a glitch.
-
 export class Clip {
   constructor({ src, poster, w, h, track, loopFade = 0.55 }) {
     this.w = w;
@@ -41,7 +34,6 @@ export class Clip {
     v.load();
   }
 
-  /** Resolves when there is enough data to start without stalling. */
   whenReady() {
     if (this.el.readyState >= 3) return Promise.resolve(this);
     return new Promise((res) => {
@@ -68,7 +60,6 @@ export class Clip {
 
   pause() { this.el.pause(); }
 
-  /** True when the decoder has produced a new frame since the last upload. */
   poll() {
     const t = this.el.currentTime;
     if (t !== this._lastTime && this.el.readyState >= 2) {
@@ -78,7 +69,6 @@ export class Clip {
     return false;
   }
 
-  /** Subject box for the current frame, from the baked track. */
   box() {
     if (!this.track || !this.track.length) return [0.25, 0.05, 0.75, 0.98];
     const d = this.duration || 1;
@@ -87,7 +77,6 @@ export class Clip {
     return this.track[i];
   }
 
-  /** 0..1 opacity that dips through the loop wrap so the cut is never seen. */
   seamFade() {
     const d = this.duration;
     if (!d || !this.loopFade) return 1;

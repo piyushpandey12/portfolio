@@ -1,8 +1,3 @@
-// The finale's lifecycle: the last scene of the film, the reference image
-// brought alive. Layer order (back to front): the plate canvas (wordmark +
-// red fog, staged) -> the man's canvas (the artwork's own matted figure +
-// a foreground veil) -> the editorial captions and the functional row.
-
 import { createGL } from '../gl/renderer.js';
 import { Finale } from './finale.js';
 import { sample6, T6 } from './timeline6.js';
@@ -26,25 +21,20 @@ export async function initFinale() {
   try {
     const meta = await fetch('public/fin/fin.json').then((r) => r.json());
     fin.manBox = meta.man;
-  } catch { /* the default box matches the shipped extraction */ }
+  } catch {  }
   await fin.load();
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const caps = [...section.querySelectorAll('.f-cap')];
   caps.forEach((el, i) => el.style.setProperty('--li', String(i)));
 
-  // ---- frame 2 -------------------------------------------------------------
-  // The closing scene's second still. It slides in from the left under
-  // scroll control once its image exists; until then the machinery stays
-  // dormant and the footer is exactly the single-frame finale.
   const stage1 = document.getElementById('finStage1');
   const dim = document.getElementById('finDim');
   const frame2 = document.getElementById('finFrame2');
   const frame2Img = document.getElementById('finFrame2Img');
   let frame2Ready = false;
   if (frame2 && frame2Img) {
-    // canonical home first, then the naming pattern the reference images
-    // use; while the image is absent each miss logs one benign 404
+
     const candidates = [
       'footer%202nd%20image.jpg',
       'public/fin/frame2.jpg',
@@ -62,8 +52,8 @@ export async function initFinale() {
       probe.src = candidates[i];
     })(0);
   }
-  const sstep = (v) => v * v * v * (v * (v * 6 - 15) + 10);   // smootherstep
-  let p2 = 0;                                    // damped frame-2 progress
+  const sstep = (v) => v * v * v * (v * (v * 6 - 15) + 10);
+  let p2 = 0;
 
   let resizeId;
   function place() {
@@ -102,9 +92,6 @@ export async function initFinale() {
     fin.par.y = ptr.y;
     fin.render(t, s);
 
-    // frame 2: scroll position -> damped progress -> eased entrance. The
-    // damping is what makes a wheel's stepped deltas feel like a camera
-    // move; the deadzone leaves frame 1 a settled beat before the change.
     if (frame2Ready) {
       const r = section.getBoundingClientRect();
       const room = section.offsetHeight - window.innerHeight;
@@ -118,7 +105,7 @@ export async function initFinale() {
       } else if (frame2.style.filter) {
         frame2.style.filter = '';
       }
-      // frame 1 is pushed gently aside and dimmed as the new frame covers it
+
       if (stage1) stage1.style.transform = `translate3d(${(e * 4.5).toFixed(3)}%, 0, 0)`;
       if (dim) dim.style.opacity = (e * 0.5).toFixed(3);
     }

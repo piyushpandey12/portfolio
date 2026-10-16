@@ -18,7 +18,6 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEDIA = os.path.join(ROOT, "public", "media")
 THRESH = 0.35
 
-
 def track(path, w):
     cap = cv2.VideoCapture(path)
     boxes = []
@@ -37,7 +36,6 @@ def track(path, w):
         boxes.append([round(cols[0] / w, 4), round(rows[0] / h, 4),
                       round((cols[-1] + 1) / w, 4), round((rows[-1] + 1) / h, 4)])
     cap.release()
-    # fill gaps, then smooth so the anchor does not jitter frame to frame
     last = next((b for b in boxes if b), [0.3, 0.1, 0.7, 0.9])
     boxes = [b if b else last for b in boxes]
     arr = np.array(boxes, np.float32)
@@ -46,7 +44,6 @@ def track(path, w):
     sm = np.stack([np.convolve(pad[:, i], np.ones(k) / k, "valid")
                    for i in range(4)], 1)
     return np.round(sm, 4).tolist()
-
 
 def main():
     mpath = os.path.join(MEDIA, "manifest.json")
@@ -59,7 +56,6 @@ def main():
               % (name, len(t), a[3] - a[1], a[0], a[2], b[3] - b[1], b[0], b[2]))
     json.dump(man, open(mpath, "w", encoding="utf-8"), indent=1)
     print("manifest updated ->", mpath)
-
 
 if __name__ == "__main__":
     main()

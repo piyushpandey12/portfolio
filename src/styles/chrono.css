@@ -1,11 +1,3 @@
-/* ==========================================================================
-   Scene three — the time machine.
-   The room, floor mechanism, clock and timeline rail are drawn on a WebGL
-   canvas. The six year cards are DOM: each carries real text that has to stay
-   crisp and reachable, and they are positioned by JS from the same fitted
-   geometry the canvas draws with, so the layers cannot drift apart.
-   ========================================================================== */
-
 @font-face {
   font-family: 'Bodoni Moda';
   src: url('../../public/fonts/bodonimoda-400.woff2') format('woff2');
@@ -18,7 +10,7 @@
   --cream: #f4e9dc;
 
   position: relative;
-  height: 240svh;              /* travel for the intro to breathe into */
+  height: 240svh;
   background: #060505;
 }
 
@@ -37,9 +29,6 @@
   display: block;
 }
 
-/* The figure's own canvas, stacked OVER the card deck: he stands in front of
-   the timeline with the cards passing behind his shoulders. Transparent, and
-   inert to the pointer so the cards underneath stay hoverable and clickable. */
 #chronoFront {
   position: absolute;
   inset: 0;
@@ -49,10 +38,6 @@
   pointer-events: none;
   z-index: 6;
 }
-
-/* --------------------------------------------------------------------------
-   Editorial furniture
-   -------------------------------------------------------------------------- */
 
 .chrono__title,
 .chrono__rail,
@@ -74,74 +59,100 @@
 .chrono.is-live .chrono__note { transition-delay: .3s; }
 
 .chrono__title {
-  left: clamp(18px, 3vw, 54px);
-  top: clamp(26px, 5.5vh, 62px);
+  left: clamp(18px, 3.2vw, 54px);
+  top: clamp(24px, 5.2vh, 60px);
   display: grid;
-  gap: .18em;
+  gap: .15em;
   font-family: 'Bodoni Moda', 'Times New Roman', serif;
   font-weight: 400;
-  font-size: clamp(15px, 1.75vw, 27px);
+  font-size: clamp(16px, 1.85vw, 29px);
   line-height: 1;
-  letter-spacing: .30em;
+  letter-spacing: .28em;
   text-transform: uppercase;
   color: var(--cream);
 }
 
 .chrono__rail {
-  left: clamp(18px, 3vw, 54px);
-  top: clamp(150px, 24vh, 240px);
+  left: clamp(18px, 3.2vw, 54px);
+  top: clamp(155px, 25vh, 245px);
   display: grid;
-  gap: .95em;
+  gap: .85em;
   font-family: var(--ui);
-  font-size: clamp(7.5px, .62vw, 9.5px);
-  font-weight: 400;
-  letter-spacing: .38em;
+  font-size: clamp(8px, .65vw, 10px);
+  font-weight: 500;
+  letter-spacing: .32em;
   text-transform: uppercase;
-  color: #7b6f66;
+  color: #a8988d;
   line-height: 1;
 }
-.chrono__rail i,
-.chrono__hint i,
-.chrono__note i {
+
+.chrono__dash {
   display: block;
-  width: 26px;
-  height: 1px;
-  background: #6a5a4c;
-  margin: .5em 0;
+  width: 22px;
+  height: 2px;
+  background: #ff3c14;
+  box-shadow: 0 0 6px rgba(255, 60, 20, 0.6);
+  margin: .45em 0;
 }
 
 .chrono__hint {
-  right: clamp(18px, 3vw, 54px);
-  top: clamp(26px, 5.5vh, 62px);
+  right: clamp(18px, 3.2vw, 54px);
+  top: clamp(24px, 5.2vh, 60px);
+  display: grid;
+  gap: .35em;
   text-align: right;
   font-family: var(--ui);
-  font-size: clamp(7.5px, .62vw, 9.5px);
-  letter-spacing: .34em;
+  font-size: clamp(8px, .65vw, 10px);
+  font-weight: 500;
+  letter-spacing: .30em;
   text-transform: uppercase;
-  color: var(--amber);
-  line-height: 2;
+  color: #d6bfa8;
+  line-height: 1.4;
 }
-.chrono__hint i { margin-left: auto; }
+.chrono__hint .chrono__dash {
+  margin-left: auto;
+  margin-top: .6em;
+}
 
 .chrono__note {
   font-family: var(--ui);
-  font-size: clamp(7.5px, .6vw, 9.5px);
-  letter-spacing: .34em;
+  font-size: clamp(7.5px, .62vw, 9.8px);
+  letter-spacing: .30em;
   text-transform: uppercase;
-  color: #9a6a44;
-  line-height: 2.1;
+  line-height: 1.8;
 }
-.chrono__note--bl { left: clamp(18px, 3vw, 54px); bottom: clamp(20px, 5vh, 56px); }
-.chrono__note--br {
-  right: clamp(18px, 3vw, 54px);
-  bottom: clamp(20px, 5vh, 56px);
-  text-align: right;
+.chrono__note--bl {
+  left: clamp(18px, 3.2vw, 54px);
+  bottom: clamp(22px, 5vh, 56px);
+  display: grid;
+  gap: .25em;
+  color: #bfa38e;
 }
-.chrono__note--br i { margin-left: auto; }
+.chrono__note--bl .chrono__dash {
+  margin-top: .6em;
+}
 
-/* --------------------------------------------------------------------------
-   The deck of years
-   -------------------------------------------------------------------------- */
+.chrono__note--br {
+  right: clamp(18px, 3.2vw, 54px);
+  bottom: clamp(22px, 5vh, 56px);
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  text-align: left;
+  color: #bfa38e;
+}
+.chrono__bracket {
+  display: inline-block;
+  width: 5px;
+  border-left: 2px solid #ff3c14;
+  border-top: 2px solid #ff3c14;
+  border-bottom: 2px solid #ff3c14;
+  box-shadow: 0 0 6px rgba(255, 60, 20, 0.4);
+}
+.chrono__note-lines {
+  display: grid;
+  gap: .25em;
+}
 
 .chrono__deck {
   position: absolute;
@@ -150,21 +161,19 @@
   pointer-events: none;
 }
 
-/* The big year numeral on the rail. Styled as the reference sets them: bold
-   condensed warm-cream figures with a CONTROLLED glow — generous blur radii
-   read as a white pill from a distance, which is exactly what must not
-   happen. No background, no box; it is lettering standing in the room. */
 .yr-tag {
   position: absolute;
   appearance: none;
   border: 0;
-  padding: 0;
+  padding: 8px 12px;
+  margin: -8px -12px;
   background: none;
-  cursor: default;
-  transform: translate(-16%, -128%) scale(calc(.88 + .12 * var(--near, 0)));
-  transform-origin: 0 100%;
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translate(-50%, -125%) scale(calc(.88 + .12 * var(--near, 0)));
+  transform-origin: 50% 100%;
   font-family: var(--ui);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: .035em;
   line-height: 1;
   color: color-mix(in srgb, #eccfa4 calc(58% + 42% * var(--near, 0)), #c99055);
@@ -172,15 +181,15 @@
   text-shadow:
     0 0 5px rgba(255, 150, 60, calc(.22 + .18 * var(--near, 0))),
     0 0 16px rgba(255, 70, 20, calc(.12 + .26 * var(--near, 0)));
-  transition: color .5s ease, text-shadow .5s ease;
+  transition: color .4s ease, text-shadow .4s ease;
   will-change: transform, opacity;
 }
 .yr-tag.is-active {
-  color: #fff4e4;
+  color: #fff8f0;
   text-shadow:
-    0 0 5px rgba(255, 170, 90, .45),
-    0 0 18px rgba(255, 70, 20, .5),
-    0 0 42px rgba(255, 40, 10, .3);
+    0 0 6px rgba(255, 180, 100, .75),
+    0 0 20px rgba(255, 75, 20, .85),
+    0 0 45px rgba(255, 45, 10, .55);
 }
 
 .yr {
@@ -195,14 +204,9 @@
   text-align: left;
   font: inherit;
 
-  /* The card hangs BELOW its node on the rail, leans with the rail's tangent,
-     and lifts toward the viewer as it becomes the active year. Combining that
-     into one transform keeps it on the compositor. */
-  /* the measured point is the centre of the card's PHOTO, which sits about
-     30% down the finished card, so that is what is anchored */
   transform:
-    translate(-50%, -30%)
-    translateZ(calc(var(--near, 0) * 46px))
+    translate(-50%, -32%)
+    translateZ(calc(var(--near, 0) * 44px))
     translateY(calc((1 - var(--in, 0)) * 26px))
     rotate(var(--tilt, 0deg))
     scale(calc(.94 + .06 * var(--near, 0)));
@@ -214,105 +218,102 @@
 .yr__frame {
   position: relative;
   display: block;
-  padding: 7px;
-  border-radius: 10px;
-  background:
-    linear-gradient(160deg, rgba(38, 26, 20, .92), rgba(14, 10, 9, .96));
-  border: 1px solid rgba(255, 150, 80, calc(.14 + .5 * var(--near, 0)));
+  padding: 5px;
+  border-radius: 8px;
+  background: rgba(14, 10, 9, 0.76);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 140, 70, calc(.18 + .42 * var(--near, 0)));
   box-shadow:
-    0 18px 46px -18px rgba(0, 0, 0, .9),
-    0 0 calc(6px + 46px * var(--near, 0))
-      rgba(255, 62, 20, calc(.05 + .40 * var(--near, 0))),
-    inset 0 1px 0 rgba(255, 190, 140, .07);
-  transition: border-color .45s ease, box-shadow .45s ease, background .45s ease;
+    0 16px 40px -12px rgba(0, 0, 0, .9),
+    0 0 calc(4px + 24px * var(--near, 0)) rgba(255, 62, 20, calc(.05 + .35 * var(--near, 0))),
+    inset 0 1px 0 rgba(255, 190, 140, .08);
+  transition: border-color .35s ease, box-shadow .35s ease, background .35s ease;
 }
 .yr.is-active .yr__frame {
-  border-color: rgba(255, 92, 44, .95);
-  background: linear-gradient(160deg, rgba(48, 26, 18, .95), rgba(18, 10, 8, .97));
+  border: 2px solid #ff2a05;
+  background: rgba(22, 12, 10, 0.90);
+  box-shadow:
+    0 18px 48px -10px rgba(0, 0, 0, .95),
+    0 0 16px rgba(255, 42, 5, 0.85),
+    0 0 38px rgba(255, 42, 5, 0.45),
+    inset 0 0 12px rgba(255, 42, 5, 0.25);
 }
 
 .yr__img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 6px;
-  /* the far years read as older: cooler, flatter, further back in memory */
+  border-radius: 5px;
   filter:
-    saturate(calc(.55 + .55 * var(--near, 0)))
-    brightness(calc(.62 + .48 * var(--near, 0)))
+    saturate(calc(.65 + .45 * var(--near, 0)))
+    brightness(calc(.68 + .42 * var(--near, 0)))
     contrast(1.05);
-  transition: filter .5s ease;
+  transition: filter .4s ease;
 }
 
 .yr__body {
   display: block;
-  padding: 9px 4px 3px;
-}
-.yr__year {
-  display: block;
-  font-family: var(--ui);
-  font-weight: 300;
-  font-size: clamp(13px, 1.15vw, 19px);
-  letter-spacing: .04em;
-  line-height: 1;
-  color: color-mix(in srgb, #d9cfc6 calc(100% - 60% * var(--near, 0)), #fff3e8);
+  padding: 6px 3px 2px;
 }
 .yr__key {
   display: block;
-  margin-top: .5em;
   font-family: var(--ui);
-  font-weight: 600;
-  font-size: clamp(7.5px, .62vw, 9.5px);
-  letter-spacing: .22em;
+  font-weight: 700;
+  font-size: clamp(8px, .66vw, 10.5px);
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: color-mix(in srgb, #a89a90 calc(100% - 75% * var(--near, 0)), #ffb488);
+  color: color-mix(in srgb, #d4c4b8 calc(100% - 75% * var(--near, 0)), #ffffff);
+}
+.yr.is-active .yr__key {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(255, 120, 60, 0.4);
 }
 .yr__lines {
   display: grid;
-  gap: .18em;
-  margin-top: .5em;
+  gap: .15em;
+  margin-top: .4em;
 }
 .yr__lines i {
   font-style: normal;
   font-family: var(--ui);
-  font-size: clamp(7px, .56vw, 8.6px);
-  letter-spacing: .16em;
+  font-size: clamp(7px, .56vw, 8.8px);
+  letter-spacing: .12em;
   text-transform: uppercase;
-  color: #8d8078;
-  transition: color .5s ease;
+  color: #928379;
+  line-height: 1.3;
+  transition: color .4s ease;
 }
-.yr.is-active .yr__lines i { color: #c9bab0; }
+.yr.is-active .yr__lines i {
+  color: #dcd0c8;
+}
 
 .yr__go {
   position: absolute;
-  right: 12px;
-  bottom: 11px;
-  width: 15px;
-  height: 15px;
-  color: #ffd9c2;
+  right: 8px;
+  bottom: 8px;
+  width: 14px;
+  height: 14px;
+  color: #fff4ea;
   opacity: 0;
   transform: translate(-3px, 3px);
-  transition: opacity .4s ease, transform .5s var(--ease-out);
+  transition: opacity .35s ease, transform .4s var(--ease-out);
 }
-.yr.is-active .yr__go { opacity: .95; transform: none; }
+.yr.is-active .yr__go {
+  opacity: 1;
+  transform: none;
+}
 
 .yr:focus-visible .yr__frame { outline: 2px solid var(--amber); outline-offset: 3px; }
 
-/* --------------------------------------------------------------------------
-   Portrait — the timeline becomes a vertical descent rather than a squeezed arc
-   -------------------------------------------------------------------------- */
-
-/* On a phone the deck holds ONE card at a time: six stacked cards in a tall
-   frame would be a pile, so the vertical year rail becomes the control and the
-   active card holds the stage beside it. */
 .chrono.is-portrait .chrono__deck { perspective: none; }
 .chrono.is-portrait .yr {
   transform:
     translate(-50%, -50%)
     translateY(calc((1 - var(--near, 0)) * 22px))
     scale(calc(.94 + .06 * var(--near, 0)));
-  /* only the active card is visible and hittable */
+
   opacity: calc(var(--in, 0) * max(0, var(--near, 0) * 3 - 2));
   pointer-events: none;
   transition: opacity .45s ease, transform .55s var(--ease-out);
@@ -320,7 +321,6 @@
 .chrono.is-portrait .yr.is-active { pointer-events: auto; }
 .chrono.is-portrait .yr__lines { display: grid; }
 
-/* the year numerals become the tap targets */
 .chrono.is-portrait .yr-tag {
   transform: translate(-50%, -50%) scale(calc(.9 + .18 * var(--near, 0)));
   padding: 10px 14px;

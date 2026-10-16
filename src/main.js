@@ -1,10 +1,3 @@
-// Boot, orchestration, the frame loop.
-//
-// Order of operations matters here: the page must sit on TRUE black until the
-// fonts, textures and the hero clip are all decodable, otherwise the sequence
-// starts and the figure pops in three frames later. Nothing is revealed until
-// everything needed for the first eight seconds is in hand.
-
 import { Stage } from './gl/stage.js';
 import { Clip } from './lib/clip.js';
 import { computeLayout } from './scene/layout.js';
@@ -16,13 +9,30 @@ import { initUniverse } from './scene2/boot2.js';
 import { initChrono } from './scene3/boot3.js';
 import { initGallery } from './scene4/boot4.js';
 import { initFinale } from './scene6/boot6.js';
+import Lenis from 'lenis';
 
-// a cinematic page manages its own positions; the browser restoring an old
-// scroll offset mid-boot yanks the visitor (and any scripted anchor) around
+export const lenis = new Lenis({
+  duration: 1.25,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  orientation: 'vertical',
+  gestureOrientation: 'vertical',
+  smoothWheel: true,
+  wheelMultiplier: 1.0,
+  touchMultiplier: 1.6,
+  infinite: false,
+});
+
+function lenisRaf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(lenisRaf);
+}
+requestAnimationFrame(lenisRaf);
+window.__lenis = lenis;
+
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
 const MEDIA = 'public/media/';
-const MIN_BLACK = 620;          // the darkness must be felt, even on a fast line
+const MIN_BLACK = 620;
 
 const root = document.documentElement;
 const boot = document.getElementById('boot');
@@ -43,8 +53,6 @@ const app = {
   pointer: { x: 0, y: 0, tx: 0, ty: 0 },
   running: false,
 };
-
-// --------------------------------------------------------------------------
 
 async function main() {
   const canvas = document.getElementById('stage');
@@ -99,8 +107,6 @@ async function main() {
 
   const playing = await app.clips.hero.play();
 
-  // the later scenes build while the hero plays, so scrolling into them is
-  // instant; each one runs only while it is actually on screen
   initUniverse().then((u) => { app.universe = u; })
     .catch((e) => console.warn('[piyush] universe unavailable:', e.message));
   initChrono().then((c) => { app.chrono = c; })
@@ -121,9 +127,6 @@ function begin() {
   app.running = true;
   bindPointer();
 
-  // ?t=4.2 starts the sequence part-way through, and ?t=end lands on the
-  // settled composition. Purely a review aid for tuning a single beat without
-  // sitting through the whole opening each time.
   const q = new URLSearchParams(location.search).get('t');
   if (q !== null) {
     const at = q === 'end' ? T.settled : parseFloat(q);
@@ -135,8 +138,7 @@ function begin() {
     }
   }
   if (reduced) {
-    // honour the preference fully: land on the finished composition and hold it
-    // still - no build-up, no looping walk, no drifting grain
+
     app.t0 = performance.now() - T.settled * 1000;
     for (const [, name] of CUES) root.classList.add(`is-${name}`);
     const c = app.clips.hero;
@@ -152,7 +154,6 @@ function begin() {
   requestAnimationFrame(frame);
 }
 
-/** Autoplay was refused — offer a single deliberate entry point. */
 function awaitGesture() {
   bootEnter.hidden = false;
   bootEnter.addEventListener('click', async () => {
@@ -160,8 +161,6 @@ function awaitGesture() {
     begin();
   }, { once: true });
 }
-
-// --------------------------------------------------------------------------
 
 function layout() {
   const w = window.innerWidth;
@@ -184,8 +183,7 @@ function layout() {
 function bindPointer() {
   if (reduced || matchMedia('(pointer: coarse)').matches) return;
   window.addEventListener('pointermove', (e) => {
-    // normalised to -1..1, then damped in the frame loop; the response is
-    // deliberately small — depth, not a toy
+
     app.pointer.tx = (e.clientX / window.innerWidth) * 2 - 1;
     app.pointer.ty = (e.clientY / window.innerHeight) * 2 - 1;
   }, { passive: true });
@@ -212,15 +210,13 @@ function frame(now) {
   const p = app.pointer;
   p.x = damp(p.x, p.tx, 3.1, dt);
   p.y = damp(p.y, p.ty, 3.1, dt);
-  // parallax only comes alive once the composition has settled
+
   const gate = clamp((t - T.settled + 0.9) / 1.2);
   app.stage.parallax.x = p.x * gate;
   app.stage.parallax.y = p.y * gate;
 
   const state = sample(t, app.word.letters.length, app.order);
 
-  // after the intro the wordmark breathes very slightly, so the frame never
-  // becomes a static image
   if (state.settled) {
     const b = Math.sin(t * 0.42) * 0.5 + Math.sin(t * 0.27 + 1.3) * 0.5;
     for (const l of state.letters) l.dy = b * 0.0035;
@@ -229,8 +225,6 @@ function frame(now) {
   app.stage.render(state, t, app.clips);
   requestAnimationFrame(frame);
 }
-
-// --------------------------------------------------------------------------
 
 function degrade(reason) {
   console.warn('[piyush] falling back:', reason);
@@ -256,7 +250,6 @@ function debounce(fn, ms) {
   return (...a) => { clearTimeout(id); id = setTimeout(() => fn(...a), ms); };
 }
 
-// mobile menu
 const burger = document.getElementById('burger');
 const menu = document.getElementById('menu');
 menu?.querySelectorAll('a').forEach((a, i) => a.style.setProperty('--i', i));
@@ -275,10 +268,10 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && root.classList.contains('is-menu')) setMenu(false);
 });
 
-// Bulletproof Smooth Navigation
-function scrollToTarget(targetId) {
+function scrollToTarget(targetId, opts = {}) {
+  stopAutoTour();
   if (!targetId || targetId === '#' || targetId === '#home' || targetId === '#stage') {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    lenis.scrollTo(0, { duration: 1.4, ...opts });
     return;
   }
   const target = document.querySelector(targetId);
@@ -286,17 +279,11 @@ function scrollToTarget(targetId) {
 
   const hdr = document.getElementById('hdr');
   const hdrH = hdr ? hdr.offsetHeight : 70;
-  
-  // Calculate true document-relative coordinate
-  const rect = target.getBoundingClientRect();
-  const targetTop = rect.top + window.pageYOffset;
-  
-  // Offset slightly for sticky and pinned sections
+
   const offset = targetId === '#universe' ? 0 : Math.max(0, hdrH - 10);
-  window.scrollTo({ top: Math.max(0, targetTop - offset), behavior: 'smooth' });
+  lenis.scrollTo(target, { offset: -offset, duration: 1.4, ...opts });
 }
 
-// Bind all data-nav and anchor links
 document.querySelectorAll('a[data-nav], .hdr__nav a, .menu a, .hdr__mark, a[href^="#"]').forEach((anchor) => {
   anchor.addEventListener('click', (e) => {
     const href = anchor.getAttribute('href');
@@ -305,7 +292,6 @@ document.querySelectorAll('a[data-nav], .hdr__nav a, .menu a, .hdr__mark, a[href
       scrollToTarget(href);
       setMenu(false);
 
-      // Immediately activate clicked link
       document.querySelectorAll('.hdr__nav a, .menu a').forEach((a) => {
         a.classList.toggle('is-active', a.getAttribute('href') === href);
       });
@@ -313,7 +299,6 @@ document.querySelectorAll('a[data-nav], .hdr__nav a, .menu a, .hdr__mark, a[href
   });
 });
 
-// ScrollSpy & Header Translucency on Scroll
 const navSections = [
   { id: '#home', el: document.querySelector('.hero-spacer') || document.getElementById('home') },
   { id: '#universe', el: document.getElementById('universe') },
@@ -328,12 +313,10 @@ function updateActiveNav() {
   const vh = window.innerHeight;
   const hdr = document.getElementById('hdr');
 
-  // Toggle glassmorphic background when scrolled past top
   if (hdr) {
     hdr.classList.toggle('is-scrolled', scrollY > 40);
   }
 
-  // Detect which section is currently active
   let currentId = '#home';
   for (const sec of navSections) {
     if (!sec.el) continue;
@@ -348,10 +331,10 @@ function updateActiveNav() {
   });
 }
 
+lenis.on('scroll', updateActiveNav);
 window.addEventListener('scroll', updateActiveNav, { passive: true });
 setTimeout(updateActiveNav, 100);
 
-// Interactive Project Details Modal
 const pmBackdrop = document.getElementById('projectModal');
 const pmClose = document.getElementById('pmClose');
 const pmBadge = document.getElementById('pmBadge');
@@ -395,7 +378,6 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && pmBackdrop?.classList.contains('is-open')) closeModal();
 });
 
-// Contact Form Handling
 const contactForm = document.getElementById('contactForm');
 const contactAlert = document.getElementById('contactAlert');
 contactForm?.addEventListener('submit', (e) => {
@@ -410,9 +392,6 @@ contactForm?.addEventListener('submit', (e) => {
   }
 });
 
-// The hero is position:fixed behind the flow, so once scene two covers it there
-// is nothing to see - stop decoding its video rather than burning battery on
-// frames nobody is looking at.
 const heroWrap = document.querySelector('.stage-wrap');
 if (heroWrap && 'IntersectionObserver' in window) {
   const spacer = document.querySelector('.hero-spacer');
@@ -427,8 +406,6 @@ if (heroWrap && 'IntersectionObserver' in window) {
   }
 }
 
-// pause the decoder when the tab is hidden rather than burning battery
-// decoding frames nobody is looking at
 document.addEventListener('visibilitychange', () => {
   const hidden = document.visibilityState === 'hidden';
   for (const c of Object.values(app.clips)) {
@@ -438,10 +415,6 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// Review hook. Draws one frame on demand and reads the framebuffer in the SAME
-// task, because the context is created without preserveDrawingBuffer. Rendering
-// here rather than piggy-backing on the animation loop means it still works when
-// the tab is hidden and rAF is throttled to a stop.
 window.__shot = async (name = 'shot', at = null) => {
   if (!app.word) return 'not ready';
   const t = at !== null ? at : (performance.now() - app.t0) / 1000;
@@ -452,7 +425,6 @@ window.__shot = async (name = 'shot', at = null) => {
   return `${app.stage.canvas.width}x${app.stage.canvas.height} @ t=${t.toFixed(2)}`;
 };
 
-// live tuning of the letter surface while matching the reference art
 window.__tune = (k, v) => { app.stage[k] = v; return app.stage[k]; };
 
 main().catch((e) => degrade(e.message));

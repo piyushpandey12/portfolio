@@ -1,10 +1,3 @@
-// Embers.
-//
-// All motion happens in the vertex shader from a per-point seed, so the CPU
-// never touches these after upload - 900 sparks cost one draw call and no
-// per-frame work, which is what keeps the scene smooth alongside twelve lit
-// cards and a rebuilt ribbon.
-
 export class Sparks {
   constructor(gl, count = 900) {
     this.gl = gl;
@@ -19,8 +12,7 @@ export class Sparks {
     };
 
     for (let i = 0; i < count; i++) {
-      // a shell around the core rather than a uniform box, so the room has a
-      // centre of gravity instead of an even fog
+
       const r = 2.5 + Math.pow(rnd(), 0.6) * 12.0;
       const a = rnd() * Math.PI * 2;
       const yb = (rnd() - 0.38) * 9.0;
@@ -29,7 +21,7 @@ export class Sparks {
       pos[i * 3 + 2] = Math.sin(a) * r * 0.75 - 4.0;
 
       seed[i * 3] = rnd();
-      seed[i * 3 + 1] = Math.pow(rnd(), 2.4);   // mostly small, a few large
+      seed[i * 3 + 1] = Math.pow(rnd(), 2.4);
       seed[i * 3 + 2] = 0.5 + rnd();
     }
 
@@ -57,8 +49,6 @@ export class Sparks {
   }
 }
 
-/** Small dark cubes that give the room scale. Positions are fixed; the scene
- *  drifts them via their seed the same way the cards drift. */
 export function buildDebris(n = 16) {
   let s = 99;
   const rnd = () => {
@@ -69,7 +59,7 @@ export function buildDebris(n = 16) {
   for (let i = 0; i < n; i++) {
     const side = i % 2 ? 1 : -1;
     out.push({
-      // kept well outside the card shell, or a cube lands on a wordmark
+
       home: [side * (7.0 + rnd() * 7.0), (rnd() - 0.5) * 9.0, -16.0 + rnd() * 9.0],
       size: 0.20 + rnd() * 0.40,
       rot: [rnd() * 3, rnd() * 3, rnd() * 3],

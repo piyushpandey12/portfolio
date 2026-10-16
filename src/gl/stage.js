@@ -1,19 +1,3 @@
-// The compositor.
-//
-// Draw order, back to front:
-//   1  plate        mottled black, vignette, red ember behind the wordmark
-//   2  letters      seven quads sharing one glyph atlas
-//   3  shadow       his darkness falling ON the letters he stands in front of
-//   4  hero figure  the walking man - the only clip in the piece, nearest camera
-//   5  post         grain, vignette, pulse
-//
-// He is the main character, so he is the front-most element: where his body
-// crosses a letter, his body wins. The wordmark is the environment behind him.
-// The shadow between the two layers is what stops him reading as a cut-out
-// pasted on top - it is the only cue that says he is standing in that space.
-//
-// Everything is premultiplied, so a single blend mode covers the whole frame.
-
 import {
   createGL, program, unitQuad, texture, upload, bind, loadImage,
 } from './renderer.js';
@@ -21,7 +5,7 @@ import {
   VERT, FRAG_BG, FRAG_LETTER, FRAG_FIGURE, FRAG_SHADOW, FRAG_POST,
 } from './shaders.js';
 
-const INK = [0.871, 0.106, 0.110];    // #DE1B1C, sampled from the artwork
+const INK = [0.871, 0.106, 0.110];
 
 export class Stage {
   constructor(canvas) {
@@ -50,7 +34,7 @@ export class Stage {
     this.word = null;
     this.layout = null;
     this.parallax = { x: 0, y: 0 };
-    // exposed so the distressing can be dialled in against the reference art
+
     this.wear = 0.44;
     this.wearGain = 2.1;
     this.wearScale = 5.6;
@@ -82,8 +66,6 @@ export class Stage {
     this.gl.viewport(0, 0, W, H);
   }
 
-  // ---------------------------------------------------------------- drawing
-
   _quad(prog, rect, uv = [0, 0, 1, 1], skew = [0, 0]) {
     const gl = this.gl;
     gl.uniform4f(prog.u.uRect, rect[0], rect[1], rect[2], rect[3]);
@@ -93,7 +75,6 @@ export class Stage {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
-  /** Letter destination rect in device pixels. */
   letterRect(i) {
     const { word, dpr } = this.layout;
     const W = this.word;
@@ -121,7 +102,6 @@ export class Stage {
     const px = this.parallax.x;
     const py = this.parallax.y;
 
-    // ---- 1 plate --------------------------------------------------------
     {
       const p = this.progs.bg;
       gl.useProgram(p.p);
@@ -133,20 +113,16 @@ export class Stage {
       this._quad(p, [0, 0, W, H]);
     }
 
-    // he is the nearest thing to camera, so under the pointer he travels
-    // further than the wordmark behind him
     const heroSkew = [px * 30 * dpr, py * 18 * dpr];
     const geo = this._heroGeometry(clips.hero, state.hero);
 
-    // ---- 2 letters ------------------------------------------------------
     {
       const p = this.progs.letter;
       gl.useProgram(p.p);
       gl.uniform1i(p.u.uGlyph, bind(gl, this.tex.glyph, 0));
       gl.uniform1i(p.u.uGrunge, bind(gl, this.tex.grunge, 1));
       gl.uniform3f(p.u.uInk, INK[0], INK[1], INK[2]);
-      // the distressed surface is sampled in SCREEN space so it reads as one
-      // continuous worn sheet across all seven letters, not seven tiles
+
       gl.uniform2f(p.u.uGrungeScale, aspect * this.wearScale, this.wearScale);
       gl.uniform2f(p.u.uGrungeOffset, 0.12, 0.31);
       gl.uniform1f(p.u.uWear, this.wear);
@@ -167,11 +143,9 @@ export class Stage {
       }
     }
 
-    // ---- 3 + 4 the walking man, in front of the wordmark ----------------
     this._heroShadow(geo, state.hero, heroSkew);
     this._heroFigure(clips.hero, geo, state.hero, heroSkew);
 
-    // ---- 5 post ---------------------------------------------------------
     {
       const p = this.progs.post;
       gl.useProgram(p.p);
@@ -185,13 +159,6 @@ export class Stage {
     gl.bindVertexArray(null);
   }
 
-  /**
-   * Where the figure lands, in device pixels.
-   *
-   * Anchored by the SUBJECT box from the baked track rather than by the video
-   * rectangle, so his feet stay planted and his height stays constant even
-   * though he grows through the shot as he walks toward the camera.
-   */
   _heroGeometry(clip, st) {
     if (!clip || !clip.ready || st.opacity <= 0.001) return null;
     const dpr = this.layout.dpr;
@@ -214,7 +181,6 @@ export class Stage {
     };
   }
 
-  /** His darkness, cast onto the wordmark he is standing in front of. */
   _heroShadow(geo, st, skew) {
     if (!geo) return;
     const gl = this.gl;
@@ -245,14 +211,12 @@ export class Stage {
     gl.uniform2f(p.u.uTexel, 0.5 / (clip.w * 2), 0.5 / clip.h);
     gl.uniform1f(p.u.uOpacity, st.opacity * clip.seamFade());
     gl.uniform1f(p.u.uReveal, st.reveal);
-    // his shoes dissolve into the dark instead of ending on a hard edge, which
-    // also disposes of the floor highlight the key could not fully remove
+
     gl.uniform1f(p.u.uFeetFade, 0.085);
     gl.uniform1f(p.u.uTopFade, 0.012);
     gl.uniform1f(p.u.uExposure, 1.24);
     gl.uniform1f(p.u.uLift, 1.35);
-    // standing in front of a wall of red, the bounce onto his silhouette is
-    // physically motivated - it is what ties him into the frame
+
     gl.uniform1f(p.u.uRimRed, 0.30);
     gl.uniform1f(p.u.uContrast, 1.13);
     gl.uniform1f(p.u.uDesat, 0.2);
